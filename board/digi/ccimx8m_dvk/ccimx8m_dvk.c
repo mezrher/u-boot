@@ -9,7 +9,6 @@
 #include <malloc.h>
 #include <errno.h>
 #include <asm/io.h>
-/*@Mezrher*/
 #include <micrel.h>
 #include <miiphy.h>
 #include <netdev.h>
