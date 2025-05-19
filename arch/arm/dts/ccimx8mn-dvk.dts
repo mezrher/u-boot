@@ -44,7 +44,35 @@
 		compatible = "simple-bus";
 		#address-cells = <1>;
 		#size-cells = <0>;
-
+		
+		reg_3v3_ext: regulator@1 {
+			compatible = "regulator-fixed";
+			reg = <1>;
+			regulator-name = "3v3_ext";
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+			gpio = <&mca_gpio 9 GPIO_ACTIVE_HIGH>;
+			enable-active-high;
+			regulator-always-on;
+			regulator-boot-on;
+		};
+		
+		reg_3v3_eth0: regulator@3 {
+			compatible = "regulator-fixed";
+			reg = <3>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_reg_3v3_eth0>;
+			regulator-name = "3v3_eth0";
+			off-on-delay = <500000>;
+			regulator-max-microvolt = <3300000>;
+			regulator-min-microvolt = <3300000>;
+			gpio = <&gpio5 4 GPIO_ACTIVE_HIGH>;
+			enable-active-high;
+			regulator-boot-on;
+			startup-delay-us = <10000>;	
+			vin-supply = <&reg_3v3_ext>;
+		};
+		
 		reg_3v3_usb_hub: regulator@4 {
 			compatible = "regulator-fixed";
 			reg = <4>;
@@ -56,6 +84,9 @@
 			gpio = <&gpio3 25 GPIO_ACTIVE_HIGH>;
 			enable-active-high;
 		};
+		
+		
+	
 	};
 
 	thermal-zones {
@@ -128,7 +159,7 @@
 				/* PHY reset */
 				MX8MN_IOMUXC_SPDIF_TX_GPIO5_IO3	0x19
 				/* PHY power */
-				MX8MN_IOMUXC_SPDIF_RX_GPIO5_IO4	0x19
+				/* MX8MN_IOMUXC_SPDIF_RX_GPIO5_IO4	0x19 */    /* This is corrupted, This pin here in that case is active low 0x19,Signal ENET_PWR: but in our board it is not used but it should be active high to drive 3V3_ETH in Original CCm schematic power on the PHY*/
 			>;
 		};
 
@@ -191,7 +222,16 @@
 				MX8MN_IOMUXC_GPIO1_IO03_GPIO1_IO3		0x41
 			>;
 		};
-
+		
+		
+/* Ethernet PHYs regulator */
+		pinctrl_reg_3v3_eth0: pinctrl_reg_3v3_eth0grp {
+			fsl,pins = <
+/* PHY power */
+				MX8MN_IOMUXC_SPDIF_RX_GPIO5_IO4		0x41
+			>;
+		};
+		
 		pinctrl_reg_3v3_usb_hub: reg_3v3_usb_hub_grp {
 			fsl,pins = <
 				/* GPIO3_25 USB hub power enable */
@@ -488,24 +528,32 @@
 	};
 };
 
+/* Phy interface should be activated during U-Boot, 3V3_ETH should be present at boot */
+
 &fec1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_fec1>;
 	phy-mode = "rgmii-id";
 	phy-handle = <&ethphy0>;
+	phy-supply = <&reg_3v3_eth0>
 	fsl,magic-packet;
 	status = "okay";
+	
 
 	mdio {
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		ethphy0: ethernet-phy@0 {
+		ethphy0: ethernet-phy@5 {
 			compatible = "ethernet-phy-ieee802.3-c22";
-			reg = <0>;
-			at803x,led-act-blind-workaround;
-			at803x,eee-okay;
-			at803x,vddio-1p8v;
+			reg = <5>;
+			interrupt-parent = <&gpio5>; 
+			interrupts = <2 IRQ_TYPE_LEVEL_LOW>; 
+			micrel,led-mode = <0>;            /*use original "led-act-blind-workaround" instead of "led-mode" */
+		
+											  /*check "at803x,vddio-1p8v" ; if this proprety can be remplaced with (micrel, vddio-xx) ;
+			
+			
 		};
 	};
 };
