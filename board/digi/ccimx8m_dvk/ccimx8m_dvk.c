@@ -9,6 +9,7 @@
 #include <malloc.h>
 #include <errno.h>
 #include <asm/io.h>
+#include <micrel.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <asm/mach-imx/iomux-v3.h>
@@ -166,23 +167,26 @@ static void enet_device_phy_reset(void)
 	udelay(10);
 }
 
+/*MEZRHER*/
 int board_phy_config(struct phy_device *phydev)
 {
+	
+
+	/* enable rgmii rxc skew and phy mode select to RGMII copper */
 	/* Set RGMII IO voltage to 1.8V */
 	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x1f);
 	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x8);
-
+	
 	/* Introduce RGMII RX clock delay */
 	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x00);
 	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x82ee);
-
+	
 	/* Introduce RGMII TX clock delay */
 	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x05);
 	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x100);
 
 	if (phydev->drv->config)
 		phydev->drv->config(phydev);
-
 	return 0;
 }
 
