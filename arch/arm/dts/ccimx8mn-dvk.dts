@@ -57,20 +57,20 @@
 			/*	regulator-boot-on;				*/
 			/*	};						*/
 		
-		 reg_3v3_eth0: regulator@3 {
+		 reg_1v8_eth0: regulator@3 {
 			compatible = "regulator-fixed";
 			reg = <3>;
 			pinctrl-names = "default";
-			pinctrl-0 = <&pinctrl_reg_3v3_eth0>;
-			regulator-name = "3v3_PS_EN";
+			pinctrl-0 = <&pinctrl_reg_1v8_eth0>;  /*  corresponds to ENET_PWR, but this is used as powerSupply-enable PS_EN       */
+			regulator-name = "1v8_eth0";
 			off-on-delay = <500000>;
-			regulator-max-microvolt = <3300000>;
-			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <1800000>;
+			regulator-min-microvolt = <1800000>;
 			gpio = <&gpio5 4 GPIO_ACTIVE_HIGH>;
 			regulator-boot-on;
-			startup-delay-us = <10000>;
+			startup-delay-us = <200000>;
 			enable-active-high;	
-			/* vin-supply = <&reg_3v3_ext>;   MEZRHER */
+			
 		};    
 		
 		reg_3v3_usb_hub: regulator@4 {
@@ -142,24 +142,25 @@
 
 		pinctrl_fec1: fec1grp {
 			fsl,pins = <
-				MX8MN_IOMUXC_ENET_MDC_ENET1_MDC		0x3
-				MX8MN_IOMUXC_ENET_MDIO_ENET1_MDIO	0x3
-				MX8MN_IOMUXC_ENET_TD3_ENET1_RGMII_TD3	0x1f
-				MX8MN_IOMUXC_ENET_TD2_ENET1_RGMII_TD2	0x1f
-				MX8MN_IOMUXC_ENET_TD1_ENET1_RGMII_TD1	0x1f
-				MX8MN_IOMUXC_ENET_TD0_ENET1_RGMII_TD0	0x1f
-				MX8MN_IOMUXC_ENET_RD3_ENET1_RGMII_RD3	0x91
-				MX8MN_IOMUXC_ENET_RD2_ENET1_RGMII_RD2	0x91
-				MX8MN_IOMUXC_ENET_RD1_ENET1_RGMII_RD1	0x91
-				MX8MN_IOMUXC_ENET_RD0_ENET1_RGMII_RD0	0x91
-				MX8MN_IOMUXC_ENET_TXC_ENET1_RGMII_TXC	0x1f
-				MX8MN_IOMUXC_ENET_RXC_ENET1_RGMII_RXC	0x91
+				MX8MN_IOMUXC_ENET_MDC_ENET1_MDC			0x3
+				MX8MN_IOMUXC_ENET_MDIO_ENET1_MDIO		0x3
+				MX8MN_IOMUXC_ENET_TD3_ENET1_RGMII_TD3		0x1f
+				MX8MN_IOMUXC_ENET_TD2_ENET1_RGMII_TD2		0x1f
+				MX8MN_IOMUXC_ENET_TD1_ENET1_RGMII_TD1		0x1f
+				MX8MN_IOMUXC_ENET_TD0_ENET1_RGMII_TD0		0x1f
+				MX8MN_IOMUXC_ENET_RD3_ENET1_RGMII_RD3		0x91
+				MX8MN_IOMUXC_ENET_RD2_ENET1_RGMII_RD2		0x91
+				MX8MN_IOMUXC_ENET_RD1_ENET1_RGMII_RD1		0x91
+				MX8MN_IOMUXC_ENET_RD0_ENET1_RGMII_RD0		0x91
+				MX8MN_IOMUXC_ENET_TXC_ENET1_RGMII_TXC		0x1f
+				MX8MN_IOMUXC_ENET_RXC_ENET1_RGMII_RXC		0x91
 				MX8MN_IOMUXC_ENET_RX_CTL_ENET1_RGMII_RX_CTL	0x91
 				MX8MN_IOMUXC_ENET_TX_CTL_ENET1_RGMII_TX_CTL	0x1f
 				/* PHY reset */
-				MX8MN_IOMUXC_SPDIF_TX_GPIO5_IO3	0x19
+				MX8MN_IOMUXC_SPDIF_TX_GPIO5_IO3			0x19
 				/* PHY power */
-				/* MX8MN_IOMUXC_SPDIF_RX_GPIO5_IO4	0x19 */    /* This is corrupted, This pin here in that case is active low 0x19,Signal ENET_PWR: but in our board it is not used but it should be active high to drive 3V3_ETH in Original CCm schematic power on the PHY*/
+				/* MX8MN_IOMUXC_SPDIF_RX_GPIO5_IO4		0x19      I used it in &pinctrl_reg_1v8_eth0   */     
+				 /* This is corrupted, This pin here in that case is active low 0x19,Signal ENET_PWR: but in our board it is not used but it should be active high to drive 3V3_ETH in Original CCm schematic power on the PHY*/
 			>;
 		};
 
@@ -225,7 +226,7 @@
 		
 		
 /* Ethernet PHYs regulator */
-		pinctrl_reg_3v3_eth0: pinctrl_reg_3v3_eth0grp {
+		pinctrl_reg_1v8_eth0: pinctrl_reg_1v8_eth0grp {
 			fsl,pins = <
 /* PHY power */
 				MX8MN_IOMUXC_SPDIF_RX_GPIO5_IO4		0x41
@@ -535,7 +536,7 @@
 	pinctrl-0 = <&pinctrl_fec1>;
 	phy-mode = "rgmii-id";
 	phy-handle = <&ethphy0>;
-	/*phy-supply = <&reg_3v3_eth0>;     MEZRHER */
+	phy-supply = <&reg_1v8_eth0>;    /* MEZRHER */
 	fsl,magic-packet;
 	status = "okay";
 	
