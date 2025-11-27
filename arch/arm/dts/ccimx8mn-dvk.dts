@@ -19,7 +19,7 @@
 #include "imx8mn.dtsi"
 
 / {
-	model = "Digi ConnectCore 8M Nano Development Kit";
+	model = "Digi ConnectCore 8M Mini Development Kit";
 	compatible = "digi,ccimx8mn", "digi,ccimx8mn-dvk", "fsl,imx8mn-evk", "fsl,imx8mn";
 
 	/*
@@ -44,49 +44,26 @@
 		compatible = "simple-bus";
 		#address-cells = <1>;
 		#size-cells = <0>;
-		
-		        /*	reg_3v3_ext: regulator@1 {			*/
-			/*	compatible = "regulator-fixed";			*/
-			/*	reg = <1>;					*/
-			/*	regulator-name = "3v3_ext";			*/
-			/*	regulator-min-microvolt = <3300000>;		*/
-			/*	regulator-max-microvolt = <3300000>;		*/
-			/*	gpio = <&mca_gpio 9 GPIO_ACTIVE_HIGH>;		*/
-			/*	enable-active-high;				*/
-			/*	regulator-always-on;				*/
-			/*	regulator-boot-on;				*/
-			/*	};						*/
-		
-		 reg_1v8_eth0: regulator@3 {
+
+		reg_3v3_usb_hub: regulator-usb-hub {
 			compatible = "regulator-fixed";
-			reg = <3>;
-			pinctrl-names = "default";
-			pinctrl-0 = <&pinctrl_reg_1v8_eth0>;  /*  corresponds to ENET_PWR, but this is used as powerSupply-enable PS_EN       */
-			regulator-name = "1v8_eth0";
-			off-on-delay = <500000>;
-			regulator-max-microvolt = <1800000>;
-			regulator-min-microvolt = <1800000>;
-			gpio = <&gpio5 4 GPIO_ACTIVE_HIGH>;
-			regulator-boot-on;
-			startup-delay-us = <200000>;
-			enable-active-high;	
-			
-		};    
-		
-		reg_3v3_usb_hub: regulator@4 {
-			compatible = "regulator-fixed";
-			reg = <4>;
-			pinctrl-names = "default";
-			pinctrl-0 = <&pinctrl_reg_3v3_usb_hub>;
-			regulator-name = "3v3_usb_hub";
+			regulator-name = "3v3_usb_hub_Mez";
 			regulator-min-microvolt = <3300000>;
 			regulator-max-microvolt = <3300000>;
-			gpio = <&gpio3 25 GPIO_ACTIVE_HIGH>;
-			enable-active-high;
+			/* No GPIO enable, always on */
+    			regulator-always-on;
+    			regulator-boot-on;
 		};
 		
-		
-	
+		reg_3v3_eth0: regulator-ethphy {
+			compatible = "regulator-fixed";
+			regulator-name = "3v3_eth0_Mez";
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+			/* No GPIO enable, always on */
+    			regulator-always-on;
+			regulator-boot-on;
+		};
 	};
 
 	thermal-zones {
@@ -142,28 +119,31 @@
 
 		pinctrl_fec1: fec1grp {
 			fsl,pins = <
-				MX8MN_IOMUXC_ENET_MDC_ENET1_MDC			0x3
-				MX8MN_IOMUXC_ENET_MDIO_ENET1_MDIO		0x3
-				MX8MN_IOMUXC_ENET_TD3_ENET1_RGMII_TD3		0x1f
-				MX8MN_IOMUXC_ENET_TD2_ENET1_RGMII_TD2		0x1f
-				MX8MN_IOMUXC_ENET_TD1_ENET1_RGMII_TD1		0x1f
-				MX8MN_IOMUXC_ENET_TD0_ENET1_RGMII_TD0		0x1f
-				MX8MN_IOMUXC_ENET_RD3_ENET1_RGMII_RD3		0x91
-				MX8MN_IOMUXC_ENET_RD2_ENET1_RGMII_RD2		0x91
-				MX8MN_IOMUXC_ENET_RD1_ENET1_RGMII_RD1		0x91
-				MX8MN_IOMUXC_ENET_RD0_ENET1_RGMII_RD0		0x91
-				MX8MN_IOMUXC_ENET_TXC_ENET1_RGMII_TXC		0x1f
-				MX8MN_IOMUXC_ENET_RXC_ENET1_RGMII_RXC		0x91
+				MX8MN_IOMUXC_ENET_MDC_ENET1_MDC		0x3
+				MX8MN_IOMUXC_ENET_MDIO_ENET1_MDIO	0x3
+				MX8MN_IOMUXC_ENET_TD3_ENET1_RGMII_TD3	0x1f
+				MX8MN_IOMUXC_ENET_TD2_ENET1_RGMII_TD2	0x1f
+				MX8MN_IOMUXC_ENET_TD1_ENET1_RGMII_TD1	0x1f
+				MX8MN_IOMUXC_ENET_TD0_ENET1_RGMII_TD0	0x1f
+				MX8MN_IOMUXC_ENET_RD3_ENET1_RGMII_RD3	0x91
+				MX8MN_IOMUXC_ENET_RD2_ENET1_RGMII_RD2	0x91
+				MX8MN_IOMUXC_ENET_RD1_ENET1_RGMII_RD1	0x91
+				MX8MN_IOMUXC_ENET_RD0_ENET1_RGMII_RD0	0x91
+				MX8MN_IOMUXC_ENET_TXC_ENET1_RGMII_TXC	0x1f
+				MX8MN_IOMUXC_ENET_RXC_ENET1_RGMII_RXC	0x91
 				MX8MN_IOMUXC_ENET_RX_CTL_ENET1_RGMII_RX_CTL	0x91
 				MX8MN_IOMUXC_ENET_TX_CTL_ENET1_RGMII_TX_CTL	0x1f
 				/* PHY reset */
 				MX8MN_IOMUXC_SPDIF_TX_GPIO5_IO3			0x19
 				/* PHY power */
-				/* MX8MN_IOMUXC_SPDIF_RX_GPIO5_IO4		0x19      I used it in &pinctrl_reg_1v8_eth0   */     
-				 /* This is corrupted, This pin here in that case is active low 0x19,Signal ENET_PWR: but in our board it is not used but it should be active high to drive 3V3_ETH in Original CCm schematic power on the PHY*/
+				/* MX8MN_IOMUXC_SPDIF_RX_GPIO5_IO4		0x19  */
+				/* PHY interrupt */
+			         MX8MN_IOMUXC_SAI3_MCLK_GPIO5_IO2 		0x19  
 			>;
 		};
+		
 
+			
 		pinctrl_flexspi0: flexspi0grp {
 			fsl,pins = <
 				MX8MN_IOMUXC_NAND_ALE_QSPI_A_SCLK 0x1c4
@@ -223,22 +203,14 @@
 				MX8MN_IOMUXC_GPIO1_IO03_GPIO1_IO3		0x41
 			>;
 		};
-		
-		
-/* Ethernet PHYs regulator */
-		pinctrl_reg_1v8_eth0: pinctrl_reg_1v8_eth0grp {
-			fsl,pins = <
-/* PHY power */
-				MX8MN_IOMUXC_SPDIF_RX_GPIO5_IO4		0x41
-			>;
-		};
-		
-		pinctrl_reg_3v3_usb_hub: reg_3v3_usb_hub_grp {
-			fsl,pins = <
-				/* GPIO3_25 USB hub power enable */
-				MX8MN_IOMUXC_SAI5_MCLK_GPIO3_IO25		0x41
-			>;
-		};
+
+
+
+
+
+
+
+
 
 		pinctrl_uart1: uart1grp {
 			fsl,pins = <
@@ -529,30 +501,26 @@
 	};
 };
 
-/* Phy interface should be activated during U-Boot, 3V3_ETH should be present at boot */
-
 &fec1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_fec1>;
-	phy-mode = "rgmii-id";
-	phy-handle = <&ethphy0>;
-	phy-supply = <&reg_1v8_eth0>;    /* MEZRHER */
 	fsl,magic-packet;
+	phy-handle = <&ethphy0>;
+	phy-mode = "rgmii-id";
+	phy-supply = <&reg_3v3_eth0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_fec1>;	
 	status = "okay";
-	
 
 	mdio {
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		ethphy0: ethernet-phy@5 {
-			compatible = "ethernet-phy-ieee802.3-c22";
-			reg = <5>;
-			interrupt-parent = <&gpio5>; 
-			interrupts = <2 IRQ_TYPE_LEVEL_LOW>; 
-			micrel,led-mode = <0>;         /* original "led-act-blind-workaround" statt "led-mode" */
-		
-			     
+		ethphy0: ethernet-phy@0 {
+			 compatible = "ethernet-phy-ieee802.3-c22";
+			 reg = <0>;
+			 interrupt-parent = <&gpio5>;  					
+			 interrupts = <2 IRQ_TYPE_LEVEL_LOW>; 		
+		         micrel,led-mode = <0>;  
+			 
 		};
 	};
 };
@@ -574,7 +542,7 @@
 	/* 1.8V currently unsupported */
 	no-1-8-v;
 	bus-width = <4>;
-	status = "okay";
+	status = "disabled";
 };
 
 &usdhc3 {
@@ -608,4 +576,3 @@
 	disable-over-current;
 	status = "okay";
 };
-

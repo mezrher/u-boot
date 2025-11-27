@@ -14,6 +14,8 @@
 #include <memalign.h>
 #include <miiphy.h>
 #include <net.h>
+//@Mezrher
+#include <netdev.h>
 #include <power/regulator.h>
 
 #include <asm/io.h>
@@ -47,6 +49,11 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #ifndef CONFIG_MII
 #error "CONFIG_MII has to be defined!"
+#endif
+
+//@Mezrher
+#ifndef CONFIG_FEC_XCV_TYPE
+#define CONFIG_FEC_XCV_TYPE MII100
 #endif
 
 /*
@@ -234,10 +241,13 @@ static int fec_phy_write(struct mii_dev *bus, int phyaddr, int dev_addr,
 	return fec_mdio_write(bus->priv, phyaddr, regaddr, data);
 }
 
+//@Mezrher
+
+/*
 static int fec_phy_reset(struct mii_dev *bus)
 {
 	return 0;
-}
+}  */
 
 #ifndef CONFIG_PHYLIB
 static int miiphy_restart_aneg(struct eth_device *dev)
@@ -507,6 +517,13 @@ static int fec_open(struct eth_device *edev)
 	/* Enable FEC-Lite controller */
 	writel(readl(&fec->eth->ecntrl) | FEC_ECNTRL_ETHER_EN,
 	       &fec->eth->ecntrl);
+	      
+//@Mezrher added from toradex fec_mxc.c imx_v2020.04_5.4.70_2.3.0
+
+#ifdef FEC_ENET_ENABLE_TXC_DELAY
+	writel(readl(&fec->eth->ecntrl) | FEC_ECNTRL_TXC_DLY,
+		&fec->eth->ecntrl);
+#endif
 
 #if defined(CONFIG_MX25) || defined(CONFIG_MX53) || defined(CONFIG_MX6SL)
 	udelay(100);
@@ -1078,7 +1095,8 @@ struct mii_dev *fec_get_miibus(ulong base_addr, int dev_id)
 	}
 	bus->read = fec_phy_read;
 	bus->write = fec_phy_write;
-	bus->reset = fec_phy_reset;
+	//@Mezrher  toradex imxv2020.04_5.4.70
+	//bus->reset = fec_phy_reset;
 	bus->priv = eth;
 	fec_set_dev_name(bus->name, dev_id);
 
@@ -1246,16 +1264,21 @@ int fecmxc_initialize_multi(bd_t *bd, int dev_id, int phy_id, uint32_t addr)
 	return ret;
 }
 
+//@Mezrher 
+
+#ifdef CONFIG_FEC_MXC_PHYADDR
 int fecmxc_initialize(bd_t *bd)
 {
-#ifdef CONFIG_FEC_MXC_PHYADDR
+
 	return fecmxc_initialize_multi(bd, -1, CONFIG_FEC_MXC_PHYADDR,
 			IMX_FEC_BASE);
 #else
 	return fecmxc_initialize_multi(bd, -1, board_get_enet_phy_addr(),
 			IMX_FEC_BASE);
-#endif
+
 }
+
+#endif
 
 #ifndef CONFIG_PHYLIB
 int fecmxc_register_mii_postcall(struct eth_device *dev, int (*cb)(int))
@@ -1575,10 +1598,10 @@ static int fecmxc_ofdata_to_platdata(struct udevice *dev)
 #ifdef CONFIG_DM_REGULATOR
 	device_get_supply_regulator(dev, "phy-supply", &priv->phy_supply);
 #endif
-
+//@Mezrher GPIOD_IS_OUT_ACTIVE replaced with GPIOD_IS_OUT
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	ret = gpio_request_by_name(dev, "phy-reset-gpios", 0,
-				   &priv->phy_reset_gpio, GPIOD_IS_OUT_ACTIVE);
+				   &priv->phy_reset_gpio, GPIOD_IS_OUT);
 	if (ret < 0)
 		return 0; /* property is optional, don't return error! */
 

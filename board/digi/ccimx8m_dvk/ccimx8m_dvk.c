@@ -171,20 +171,87 @@ static void enet_device_phy_reset(void)
 int board_phy_config(struct phy_device *phydev)
 {
 	
-
+	/*@Mezrher*/
+	
 	/* enable rgmii rxc skew and phy mode select to RGMII copper */
-	/* Set RGMII IO voltage to 1.8V */
+	/* Set RGMII IO voltage to 1.8V using registers @AR8031- when KSZ9131 is used RGMII IO voltage level 1.8v is used by Straping Pins */
+	
+	/* AR8031 driver use the proprety in DTS vddio, 1p8v */ 
+	/*These 2 writes access MMD-like extension register @Ar8031 - AR8031 uses 0x1D & 0x1E as indirect register access window*/
+	/*write 0x1F into register 0x1D -> select internal debug page-> Debug Register 0x1F*/
+	/*Linux driver at803x.c driver uses this 2 writes to activate 1.8v this is where the DT proprety comes from at803x, vddio-1p8v*/
+	
+	// @Mezrher
+	///* Set RGMII IO voltage to 1.8V */
+	
 	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x1f);
 	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x8);
 	
+	
 	/* Introduce RGMII RX clock delay */
+	/***
 	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x00);
 	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x82ee);
-	
+	***/
 	/* Introduce RGMII TX clock delay */
+	/***
 	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x05);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x100);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x100); 
+	***/
+	
+		int tmp;
 
+	switch(ksz9xx1_phy_get_id(phydev) & MII_KSZ9x31_SILICON_REV_MASK) {
+	case PHY_ID_KSZ9031:
+		/*
+		* The PHY adds 1.2ns for the RXC and 0ns for TXC clock by default. The MAC
+		* and the layout don't add a skew between clock and data.
+		* Add 0.3ns for the RXC path and 0.96 + 0.42 ns (1.38 ns) for the TXC path
+		* to get the required clock skews.
+		*/
+		/* control data pad skew - devaddr = 0x02, register = 0x04 */
+		ksz9031_phy_extended_write(phydev, 0x02,
+					MII_KSZ9031_EXT_RGMII_CTRL_SIG_SKEW,
+					MII_KSZ9031_MOD_DATA_NO_POST_INC, 0x0070);
+		/* rx data pad skew - devaddr = 0x02, register = 0x05 */
+		ksz9031_phy_extended_write(phydev, 0x02,
+					MII_KSZ9031_EXT_RGMII_RX_DATA_SKEW,
+					MII_KSZ9031_MOD_DATA_NO_POST_INC, 0x7777);
+		/* tx data pad skew - devaddr = 0x02, register = 0x06 */
+		ksz9031_phy_extended_write(phydev, 0x02,
+					MII_KSZ9031_EXT_RGMII_TX_DATA_SKEW,
+					MII_KSZ9031_MOD_DATA_NO_POST_INC, 0x0000);
+		/* gtx and rx clock pad skew - devaddr = 0x02, register = 0x08 */
+		ksz9031_phy_extended_write(phydev, 0x02,
+					MII_KSZ9031_EXT_RGMII_CLOCK_SKEW,
+					MII_KSZ9031_MOD_DATA_NO_POST_INC, 0x03f4);
+		break;
+	case PHY_ID_KSZ9131:
+	default:
+		/* read rxc dll control - devaddr = 0x2, register = 0x4c */
+		tmp = ksz9031_phy_extended_read(phydev, 0x02,
+					MII_KSZ9131_EXT_RGMII_2NS_SKEW_RXDLL,
+					MII_KSZ9031_MOD_DATA_NO_POST_INC);
+		/* disable rxdll bypass (enable 2ns skew delay on RXC) */
+		tmp &= ~MII_KSZ9131_RXTXDLL_BYPASS;
+		/* rxc data pad skew 2ns - devaddr = 0x02, register = 0x4c */
+		tmp = ksz9031_phy_extended_write(phydev, 0x02,
+					MII_KSZ9131_EXT_RGMII_2NS_SKEW_RXDLL,
+					MII_KSZ9031_MOD_DATA_NO_POST_INC, tmp);
+		/* read txc dll control - devaddr = 0x02, register = 0x4d */
+		tmp = ksz9031_phy_extended_read(phydev, 0x02,
+					MII_KSZ9131_EXT_RGMII_2NS_SKEW_TXDLL,
+					MII_KSZ9031_MOD_DATA_NO_POST_INC);
+		/* disable txdll bypass (enable 2ns skew delay on TXC) */
+		tmp &= ~MII_KSZ9131_RXTXDLL_BYPASS;
+		/* rxc data pad skew 2ns - devaddr = 0x02, register = 0x4d */
+		tmp = ksz9031_phy_extended_write(phydev, 0x02,
+					MII_KSZ9131_EXT_RGMII_2NS_SKEW_TXDLL,
+					MII_KSZ9031_MOD_DATA_NO_POST_INC, tmp);
+		break;
+	}
+	
+	
 	if (phydev->drv->config)
 		phydev->drv->config(phydev);
 	return 0;
@@ -192,26 +259,31 @@ int board_phy_config(struct phy_device *phydev)
 
 static int setup_fec(void)
 {
+
+
 	struct iomuxc_gpr_base_regs *const iomuxc_gpr_regs
 		= (struct iomuxc_gpr_base_regs *) IOMUXC_GPR_BASE_ADDR;
-	struct gpio_desc enet_pwr;
-	int ret;
+		
+//	struct gpio_desc enet_pwr;
+//	int ret;
 
 	/* Power up the PHY */
-	ret = dm_gpio_lookup_name("gpio5_4", &enet_pwr);
-	if (ret)
-		return -1;
+//	ret = dm_gpio_lookup_name("gpio5_4", &enet_pwr);
+//	if (ret)
+//		return -1;
 
-	ret = dm_gpio_request(&enet_pwr, "fec1_pwr");
-	if (ret)
-		return -1;
+//	ret = dm_gpio_request(&enet_pwr, "fec1_pwr");
+//	if (ret)
+//		return -1;
 
-	dm_gpio_set_dir_flags(&enet_pwr, GPIOD_IS_OUT);
-	dm_gpio_set_value(&enet_pwr, 1);
-	mdelay(1);	/* PHY power up time */
+//	dm_gpio_set_dir_flags(&enet_pwr, GPIOD_IS_OUT);
+//	dm_gpio_set_value(&enet_pwr, 1);
+//	mdelay(1);	/* PHY power up time */         
+
 
 	/* Reset the PHY */
-	enet_device_phy_reset();
+	//@Mezrher
+	 enet_device_phy_reset();
 
 	/* Use 125M anatop REF_CLK1 for ENET1, not from external */
 	clrsetbits_le32(&iomuxc_gpr_regs->gpr[1],
@@ -287,8 +359,9 @@ int board_init(void)
 
 	/* SOM init */
 	ccimx8_init();
-
-	board_power_led_init();
+	
+	/*@Mezrher*/
+	//board_power_led_init();
 
 #ifdef CONFIG_MXC_SPI
 	setup_spi();
