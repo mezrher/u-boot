@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0+
-/*
+ /*Toradex_imx_lf_v2022.04
  * Micrel PHY drivers
  *
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
@@ -120,8 +120,13 @@ static int ksz90x1_of_config_group(struct phy_device *phydev,
 	if (!drv || !drv->writeext)
 		return -EOPNOTSUPP;
 
-	/* Look for a PHY node under the Ethernet node */
-	node = dev_read_subnode(dev, "ethernet-phy");
+	node = phydev->node;
+
+	if (!ofnode_valid(node)) {
+		/* Look for a PHY node under the Ethernet node */
+		node = dev_read_subnode(dev, "ethernet-phy");
+	}
+
 	if (!ofnode_valid(node)) {
 		/* No node found, look in the Ethernet node */
 		node = dev_ofnode(dev);
@@ -396,54 +401,69 @@ static struct phy_driver ksz9031_driver = {
 /*
  * KSZ9131
  */
+
+#define KSZ9131RN_MMD_COMMON_CTRL_REG	2
+#define KSZ9131RN_RXC_DLL_CTRL		76
+#define KSZ9131RN_TXC_DLL_CTRL		77
+#define KSZ9131RN_DLL_CTRL_BYPASS	BIT_MASK(12)
+#define KSZ9131RN_DLL_ENABLE_DELAY	0
+#define KSZ9131RN_DLL_DISABLE_DELAY	BIT(12)
+
+static int ksz9131_config_rgmii_delay(struct phy_device *phydev)
+{
+	struct phy_driver *drv = phydev->drv;
+	u16 rxcdll_val, txcdll_val, val;
+	int ret;
+
+	switch (phydev->interface) {
+	case PHY_INTERFACE_MODE_RGMII:
+		rxcdll_val = KSZ9131RN_DLL_DISABLE_DELAY;
+		txcdll_val = KSZ9131RN_DLL_DISABLE_DELAY;
+		break;
+	case PHY_INTERFACE_MODE_RGMII_ID:
+		rxcdll_val = KSZ9131RN_DLL_ENABLE_DELAY;
+		txcdll_val = KSZ9131RN_DLL_ENABLE_DELAY;
+		break;
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+		rxcdll_val = KSZ9131RN_DLL_ENABLE_DELAY;
+		txcdll_val = KSZ9131RN_DLL_DISABLE_DELAY;
+		break;
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		rxcdll_val = KSZ9131RN_DLL_DISABLE_DELAY;
+		txcdll_val = KSZ9131RN_DLL_ENABLE_DELAY;
+		break;
+	default:
+		return 0;
+	}
+
+	val = drv->readext(phydev, 0, KSZ9131RN_MMD_COMMON_CTRL_REG,
+			   KSZ9131RN_RXC_DLL_CTRL);
+	val &= ~KSZ9131RN_DLL_CTRL_BYPASS;
+	val |= rxcdll_val;
+	ret = drv->writeext(phydev, 0, KSZ9131RN_MMD_COMMON_CTRL_REG,
+			    KSZ9131RN_RXC_DLL_CTRL, val);
+	if (ret)
+		return ret;
+
+	val = drv->readext(phydev, 0, KSZ9131RN_MMD_COMMON_CTRL_REG,
+			   KSZ9131RN_TXC_DLL_CTRL);
+
+	val &= ~KSZ9131RN_DLL_CTRL_BYPASS;
+	val |= txcdll_val;
+	ret = drv->writeext(phydev, 0, KSZ9131RN_MMD_COMMON_CTRL_REG,
+			    KSZ9131RN_TXC_DLL_CTRL, val);
+
+	return ret;
+}
+
 static int ksz9131_config(struct phy_device *phydev)
 {
 	int ret;
-	unsigned val;
-	
-	  //@Mezrher Debugs 
-	printf("\n========== KSZ9131 CONFIG ENTER ==========\n");
 
-	printf("PHY addr: %d\n", phydev->addr);
-	printf("PHY ID  : 0x%08x\n", phydev->phy_id);
-	printf("PHY drv : %s\n", phydev->drv->name);
-	printf("Interface mode: %d\n", phydev->interface);
-	printf("Features supported: 0x%x\n", phydev->supported);
-	printf("Features advertising: 0x%x\n", phydev->advertising);
-	
-	/* Dump a few important registers */
-	val = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMCR);
-	printf("BMCR (0x00)      = 0x%04x\n", val);
-
-	val = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMSR);
-	printf("BMSR (0x01)      = 0x%04x\n", val);
-
-	val = phy_read(phydev, MDIO_DEVAD_NONE, MII_PHYSID1);
-	printf("PHYID1 (0x02)    = 0x%04x\n", val);
-
-	val = phy_read(phydev, MDIO_DEVAD_NONE, MII_PHYSID2);
-	printf("PHYID2 (0x03)    = 0x%04x\n", val);
-
-	val = phy_read(phydev, MDIO_DEVAD_NONE, MII_CTRL1000);
-	printf("1000CTL (0x09)   = 0x%04x\n", val);
-
-	val = phy_read(phydev, MDIO_DEVAD_NONE, MII_STAT1000);
-	printf("1000STAT (0x0a)  = 0x%04x\n", val);
-	
-	
-	/* -------------------- */
-	/* Board config applied */
-	/* -------------------- */
-	printf("Calling ksz9031_of_config()\n");
-
-	ret = ksz9031_of_config(phydev);
-	
-	//@Mezrher
-	printf("ksz9031_of_config returned: %d\n", ret);
-	
-	if (ret) {
-		printf("ERROR: ksz9031_of_config failed!\n");
-		return ret;
+	if (phy_interface_is_rgmii(phydev)) {
+		ret = ksz9131_config_rgmii_delay(phydev);
+		if (ret)
+			return ret;
 	}
 
 	/* add an option to disable the gigabit feature of this PHY */
@@ -452,42 +472,22 @@ static int ksz9131_config(struct phy_device *phydev)
 		unsigned bmcr;
 
 		/* disable speed 1000 in features supported by the PHY */
-		
-		printf("ENV disable_giga detected → disabling gigabit\n");
 		features = phydev->drv->features;
-		
-		printf("Original features: 0x%x\n", features);
-		
 		features &= ~(SUPPORTED_1000baseT_Half |
 				SUPPORTED_1000baseT_Full);
-				
-		printf("New features: 0x%x\n", features);		
-				
 		phydev->advertising = phydev->supported = features;
 
 		/* disable speed 1000 in Basic Control Register */
 		bmcr = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMCR);
-		
-		printf("BMCR before = 0x%04x\n", bmcr);
-		
-		bmcr &= ~(1 << 6); /* clear speed select */
+		bmcr &= ~(1 << 6);
 		phy_write(phydev, MDIO_DEVAD_NONE, MII_BMCR, bmcr);
-		
-		printf("BMCR after  = 0x%04x\n",phy_read(phydev, MDIO_DEVAD_NONE, MII_BMCR));
 
 		/* disable speed 1000 in 1000Base-T Control Register */
-		
-		printf("Clearing 1000Base-T control register\n");
 		phy_write(phydev, MDIO_DEVAD_NONE, MII_CTRL1000, 0);
 
 		/* start autoneg */
-		
-		printf("Restarting autoneg...\n");
 		genphy_config_aneg(phydev);
 		genphy_restart_aneg(phydev);
-		
-		printf("Gigabit disabled successfully\n");
-		printf("========== KSZ9131 CONFIG EXIT ==========\n");
 
 		return 0;
 	}
@@ -496,7 +496,7 @@ static int ksz9131_config(struct phy_device *phydev)
 }
 
 static struct phy_driver ksz9131_driver = {
-	.name = "Micrel ksz9031",
+	.name = "Micrel ksz9131",
 	.uid  = PHY_ID_KSZ9131,
 	.mask = MII_KSZ9x31_SILICON_REV_MASK,
 	.features = PHY_GBIT_FEATURES,
@@ -512,18 +512,14 @@ int ksz9xx1_phy_get_id(struct phy_device *phydev)
 	unsigned int phyid;
 
 	get_phy_id(phydev->bus, phydev->addr, MDIO_DEVAD_NONE, &phyid);
-	
-	printf("KSZ PHY ID read addr=%d id=0x%08x\n", phydev->addr, phyid);
 
 	return phyid;
 }
 
 int phy_micrel_ksz90x1_init(void)
-{	
-	printf("Registering Micrel PHY drivers\n");
+{
 	phy_register(&ksz9021_driver);
 	phy_register(&ksz9031_driver);
 	phy_register(&ksz9131_driver);
-	printf("Micrel PHY drivers registered\n");
 	return 0;
 }
