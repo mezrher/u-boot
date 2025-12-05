@@ -189,13 +189,13 @@ int board_phy_config(struct phy_device *phydev)
 	
 	/* Introduce RGMII RX clock delay */
 	
-	//phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x00);
-	//phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x82ee);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x00);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x82ee);
 	
 	/* Introduce RGMII TX clock delay */
 	
-	//phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x05);
-	//phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x100); 
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x05);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x100); 
 	
 	
 	if (phydev->drv->config)

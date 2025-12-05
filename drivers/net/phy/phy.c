@@ -558,6 +558,8 @@ int phy_init(void)
 
 int phy_register(struct phy_driver *drv)
 {
+
+	printf("@Mezrher_Debugs Entering phy_register Function in phy.c \n");    //@Mezrher
 	INIT_LIST_HEAD(&drv->list);
 	list_add_tail(&drv->list, &phy_drivers);
 
@@ -608,6 +610,8 @@ int phy_set_supported(struct phy_device *phydev, u32 max_speed)
 
 static int phy_probe(struct phy_device *phydev)
 {
+
+	printf("@Mezrher_Debugs Entering phy_probe Function in phy.c \n");    //@Mezrher
 	int err = 0;
 
 	phydev->advertising = phydev->drv->features;
