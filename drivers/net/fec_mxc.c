@@ -518,7 +518,7 @@ static int fec_open(struct eth_device *edev)
 	writel(readl(&fec->eth->ecntrl) | FEC_ECNTRL_ETHER_EN,
 	       &fec->eth->ecntrl);
 	      
-//@Mezrher added from toradex fec_mxc.c imx_v2020.04_5.4.70_2.3.0
+//@Mezrher 
 
 #ifdef FEC_ENET_ENABLE_TXC_DELAY
 	writel(readl(&fec->eth->ecntrl) | FEC_ECNTRL_TXC_DLY,
@@ -1095,7 +1095,7 @@ struct mii_dev *fec_get_miibus(ulong base_addr, int dev_id)
 	}
 	bus->read = fec_phy_read;
 	bus->write = fec_phy_write;
-	//@Mezrher  toradex imxv2020.04_5.4.70
+	//@Mezrher  
 	//bus->reset = fec_phy_reset;
 	bus->priv = eth;
 	fec_set_dev_name(bus->name, dev_id);
@@ -1650,3 +1650,4 @@ U_BOOT_DRIVER(fecmxc_gem) = {
 	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
 };
 #endif
+

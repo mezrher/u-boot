@@ -160,7 +160,7 @@ static void enet_device_phy_reset(void)
 
 	dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT);
 	dm_gpio_set_value(&desc, 0);
-	udelay(50);
+	mdelay(20);
 	dm_gpio_set_value(&desc, 1);
 	dm_gpio_free(dev, &desc);
 
@@ -224,12 +224,12 @@ static int setup_fec(void)
 
 //	dm_gpio_set_dir_flags(&enet_pwr, GPIOD_IS_OUT);
 //	dm_gpio_set_value(&enet_pwr, 1);
-//	mdelay(1);	/* PHY power up time */         
+	mdelay(1);	/* PHY power up time */         
 
 
 	/* Reset the PHY */
 	//@Mezrher
-	 // enet_device_phy_reset();
+	 enet_device_phy_reset();
 
 	/* Use 125M anatop REF_CLK1 for ENET1, not from external */
 	clrsetbits_le32(&iomuxc_gpr_regs->gpr[1],

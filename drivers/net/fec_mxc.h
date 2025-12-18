@@ -188,7 +188,7 @@ struct ethernet_regs {
 #define FEC_ECNTRL_ETHER_EN		0x00000002	/* enable the FEC */
 #define FEC_ECNTRL_SPEED		0x00000020
 #define FEC_ECNTRL_DBSWAP		0x00000100
-//@Mezrher Add from Toradex imx_v2020.04_5.4.70_2.3.0
+//@Mezrher
 #define FEC_ECNTRL_TXC_DLY		0x00010000	/* TXC Delayed */
 
 #define FEC_X_WMRK_STRFWD		0x00000100
@@ -273,7 +273,7 @@ struct fec_priv {
 	u32 clk_rate;
 };
 
-//@Mezrher Added from Uboot Toradex uboot_v2020_04
+//@Mezrher
 //void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
 
 /**
@@ -331,3 +331,4 @@ struct fec_priv {
 #define FEC_MII_DATA_PA_SHIFT	23	/* MII PHY address bits */
 
 #endif	/* __FEC_MXC_H */
+
