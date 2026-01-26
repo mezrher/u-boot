@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <asm/io.h>
 #include <miiphy.h>
+#include<micrel.h>
 #include <netdev.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm-generic/gpio.h>
@@ -170,16 +171,16 @@ int board_phy_config(struct phy_device *phydev)
 
 #ifndef CONFIG_DM_ETH
 	/* enable rgmii rxc skew and phy mode select to RGMII copper */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x1f);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x8);
+	//phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x1f);
+	//phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x8);
 
 	/* Introduce RGMII RX clock delay */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x00);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x82ee);
+	//phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x00);
+	//phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x82ee);
 
 	/* Introduce RGMII TX clock delay */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x05);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x100);
+	//phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x05);
+	//phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x100);
 #endif
 
 	return 0;
@@ -189,24 +190,26 @@ static int setup_fec(void)
 {
 	struct iomuxc_gpr_base_regs *const iomuxc_gpr_regs
 		= (struct iomuxc_gpr_base_regs *) IOMUXC_GPR_BASE_ADDR;
-	struct gpio_desc enet_pwr;
-	int ret;
+//	struct gpio_desc enet_pwr;
+//	int ret;
 
 	/* Power up the PHY */
-	ret = dm_gpio_lookup_name("gpio5_4", &enet_pwr);
-	if (ret)
-		return -1;
+//	ret = dm_gpio_lookup_name("gpio5_4", &enet_pwr);
+//	if (ret)
+//		return -1;
 
-	ret = dm_gpio_request(&enet_pwr, "fec1_pwr");
-	if (ret)
-		return -1;
+//	ret = dm_gpio_request(&enet_pwr, "fec1_pwr");
+//	if (ret)
+//		return -1;
 
-	dm_gpio_set_dir_flags(&enet_pwr, GPIOD_IS_OUT);
-	dm_gpio_set_value(&enet_pwr, 1);
-	mdelay(1);	/* PHY power up time */
+//	dm_gpio_set_dir_flags(&enet_pwr, GPIOD_IS_OUT);
+//	dm_gpio_set_value(&enet_pwr, 1);
+	
+	//@Mezrher
+	mdelay(1);	/* @ stable PHY power up time */
 
 	/* Reset the PHY */
-	enet_device_phy_reset();
+//	enet_device_phy_reset();
 
 	/* Use 125M anatop REF_CLK1 for ENET1, not from external */
 	clrsetbits_le32(&iomuxc_gpr_regs->gpr[1],
@@ -275,8 +278,8 @@ int board_init(void)
 
 	/* SOM init */
 	ccimx8_init();
-
-	board_power_led_init();
+	//@Mezrher
+	//board_power_led_init();
 
 #ifdef CONFIG_MXC_SPI
 	setup_spi();
