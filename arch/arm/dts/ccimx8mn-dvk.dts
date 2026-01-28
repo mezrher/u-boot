@@ -515,11 +515,12 @@
 		#size-cells = <0>;
 
 		ethphy0: ethernet-phy@0 {
-			 compatible = "ethernet-phy-ieee802.3-c22";
+			 compatible =  "ethernet-phy-ieee802.3-c22", "ethernet-phy-id0022.1642";   //@Mezrher seee dhcom dts
 			 reg = <0>;
 			 interrupt-parent = <&gpio5>;  					
 			 interrupts = <2 IRQ_TYPE_LEVEL_LOW>; 		
-		         micrel,led-mode = <1>;     //@Mezrher changed micrel-mode =<0>;
+		         micrel,led-mode = <1>;     //@Mezrher individual mode link_activity Led changed micrel-mode =<0>;
+		         eee-broken-1000t;   // @Mezrher eee-broken-1000t;
 			 
 		};
 	};

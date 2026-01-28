@@ -62,6 +62,24 @@
 #define CONFIG_FEC_MXC_PHYADDR          0      
 #define FEC_QUIRK_ENET_MAC
 
+/*  @Mezhrher
+We need a delay on RGMII TXC clock line by 2ns to accomodate to the
+data-line edges. In the RGMII standard this has to be done by the MAC
+for TXC and by the PHY for RXC.
+fsl,rgmii_txc_dly that is used in linux-kernel is not implemented in
+U-Boot so use the actual implemented define FEC_ENET_ENABLE_TXC_DELAY
+RXC delay will be done by KSZ9131 PHY.
+*/
+/* @Mezrher RGMII Timing -> 
+    Delay is applied on y in one Part :in MAC or PHY or in PCB traces
+
+*/
+
+//@Mezrher enable This option to add TXC delay in MAC driver -> fec_mxc.c
+//#define FEC_ENET_ENABLE_TXC_DELAY
+//@Mezrher enable This option to add RXC delay in MAC driver -> fec_mxc.c
+//#define FEC_ENET_ENABLE_RXC_DELAY
+
 #define IMX_FEC_BASE			0x30BE0000
 #endif
 

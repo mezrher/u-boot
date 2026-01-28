@@ -52,9 +52,14 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 //@Mezrher
+//This is defined in the ccimx8mn_dvk.h in §ENET Config using RGMII interface
+//#define CONFIG_FEC_XCV_TYPE             RGMII
+
+// in case no interface was defined in ccimx8mn_dvk.h then choose MII100
 #ifndef CONFIG_FEC_XCV_TYPE
 #define CONFIG_FEC_XCV_TYPE MII100
 #endif
+
 
 /*
  * The i.MX28 operates with packets in big endian. We need to swap them before
@@ -519,11 +524,21 @@ static int fec_open(struct eth_device *edev)
 	       &fec->eth->ecntrl);
 	      
 //@Mezrher 
-
+//TXC clock for FEC delayed by 2ns   -> can be enabled in ccimx8mn_dvk.h
 #ifdef FEC_ENET_ENABLE_TXC_DELAY
 	writel(readl(&fec->eth->ecntrl) | FEC_ECNTRL_TXC_DLY,
 		&fec->eth->ecntrl);
 #endif
+
+//@Mezrher 
+//RXC clock for FEC delayed by 2ns -> can be enabled in ccimx8mn_dvk.h
+
+#ifdef FEC_ENET_ENABLE_RXC_DELAY
+	writel(readl(&fec->eth->ecntrl) | FEC_ECNTRL_RXC_DLY,
+	       &fec->eth->ecntrl);
+#endif
+
+ 
 
 #if defined(CONFIG_MX25) || defined(CONFIG_MX53) || defined(CONFIG_MX6SL)
 	udelay(100);

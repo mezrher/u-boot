@@ -190,6 +190,8 @@ struct ethernet_regs {
 #define FEC_ECNTRL_DBSWAP		0x00000100
 //@Mezrher
 #define FEC_ECNTRL_TXC_DLY		0x00010000	/* TXC Delayed */
+// this option is implemented in v2024.04, in Old version MAC adds TXC clock delay and Phy adds delay on RXC clock
+#define FEC_ECNTRL_RXC_DLY              0x00020000      /* RXC Delayed */  
 
 #define FEC_X_WMRK_STRFWD		0x00000100
 
@@ -274,7 +276,7 @@ struct fec_priv {
 };
 
 //@Mezrher
-//void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
+void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
 
 /**
  * @brief Numbers of buffer descriptors for receiving
