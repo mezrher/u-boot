@@ -31,7 +31,7 @@
 	 */
 	aliases {
 		mmc0 = &usdhc3;		/* eMMC */
-		mmc1 = &usdhc2;		/* microSD */
+	  //mmc1 = &usdhc2;		/* microSD */
 		mmc2 = &usdhc1;
 	};
 
@@ -47,7 +47,7 @@
 
 		reg_3v3_usb_hub: regulator-usb-hub {
 			compatible = "regulator-fixed";
-			regulator-name = "3v3_usb_hub_Mez";
+			regulator-name = "3v3_usb_hub";
 			regulator-min-microvolt = <3300000>;
 			regulator-max-microvolt = <3300000>;
 			/* No GPIO enable, always on */
@@ -57,7 +57,7 @@
 		
 		reg_3v3_eth0: regulator-ethphy {
 			compatible = "regulator-fixed";
-			regulator-name = "3v3_eth0_Mez";
+			regulator-name = "3v3_eth0";
 			regulator-min-microvolt = <3300000>;
 			regulator-max-microvolt = <3300000>;
 			/* No GPIO enable, always on */
@@ -142,10 +142,11 @@
 			>;
 		};
 		
-
+		/*@Mezrher Serial NOR Flash Boot via FlexSPI-> not used here, but activated whenever needed   */
 			
 		pinctrl_flexspi0: flexspi0grp {
 			fsl,pins = <
+			
 				MX8MN_IOMUXC_NAND_ALE_QSPI_A_SCLK 0x1c4
 				MX8MN_IOMUXC_NAND_CE0_B_QSPI_A_SS0_B 0x84
 
@@ -153,9 +154,10 @@
 				MX8MN_IOMUXC_NAND_DATA01_QSPI_A_DATA1 0x84
 				MX8MN_IOMUXC_NAND_DATA02_QSPI_A_DATA2 0x84
 				MX8MN_IOMUXC_NAND_DATA03_QSPI_A_DATA3 0x84
+			
 			>;
 		};
-
+		//pmic pinctrl 
 		pinctrl_i2c1: i2c1grp {
 			fsl,pins = <
 				MX8MN_IOMUXC_I2C1_SCL_I2C1_SCL			0x400001c3
@@ -169,14 +171,15 @@
 				MX8MN_IOMUXC_I2C2_SDA_I2C2_SDA			0x400001c3
 			>;
 		};
-
+		
+/*
 		pinctrl_i2c3: i2c3grp {
 			fsl,pins = <
 				MX8MN_IOMUXC_I2C3_SCL_I2C3_SCL			0x400001c3
 				MX8MN_IOMUXC_I2C3_SDA_I2C3_SDA			0x400001c3
 			>;
 		};
-
+*/
 		pinctrl_i2c1_gpio: i2c1grp-gpio {
 			fsl,pins = <
 				MX8MN_IOMUXC_I2C1_SCL_GPIO5_IO14        		0x1c3
@@ -191,6 +194,7 @@
 			>;
 		};
 
+/*
 		pinctrl_i2c3_gpio: i2c3grp-gpio {
 			fsl,pins = <
 				MX8MN_IOMUXC_I2C3_SCL_GPIO5_IO18        		0x1c3
@@ -198,18 +202,14 @@
 			>;
 		};
 
+*/
+
+//@Mezrher Check this Pin !!! double use !!! in GPIB Group
 		pinctrl_pmic: pmicirq {
 			fsl,pins = <
 				MX8MN_IOMUXC_GPIO1_IO03_GPIO1_IO3		0x41
 			>;
 		};
-
-
-
-
-
-
-
 
 
 		pinctrl_uart1: uart1grp {
@@ -226,15 +226,17 @@
 			>;
 		};
 
-		pinctrl_usdhc2_gpio: usdhc2grpgpio {
+/*		pinctrl_usdhc2_gpio: usdhc2grpgpio {
 			fsl,pins = <
-				/* Card detect */
+				//Card detect 
 				MX8MN_IOMUXC_SD2_CD_B_GPIO2_IO12	0x1d0
-				/* MUX_VSELECT */
+				//MUX_VSELECT 
 				MX8MN_IOMUXC_SAI3_TXD_GPIO5_IO1	0x190
 			>;
-		};
+		};    
+*/
 
+/*
 		pinctrl_usdhc2: usdhc2grp {
 			fsl,pins = <
 				MX8MN_IOMUXC_SD2_CLK_USDHC2_CLK	0x190
@@ -245,6 +247,9 @@
 				MX8MN_IOMUXC_SD2_DATA3_USDHC2_DATA3	0x1d0
 			>;
 		};
+*/
+
+/*
 
 		pinctrl_usdhc2_100mhz: usdhc2grp100mhz {
 			fsl,pins = <
@@ -256,7 +261,9 @@
 				MX8MN_IOMUXC_SD2_DATA3_USDHC2_DATA3	0x1d4
 			>;
 		};
+*/
 
+/*
 		pinctrl_usdhc2_200mhz: usdhc2grp200mhz {
 			fsl,pins = <
 				MX8MN_IOMUXC_SD2_CLK_USDHC2_CLK	0x196
@@ -267,6 +274,7 @@
 				MX8MN_IOMUXC_SD2_DATA3_USDHC2_DATA3	0x1d6
 			>;
 		};
+*/
 
 		pinctrl_usdhc3: usdhc3grp {
 			fsl,pins = <
@@ -326,7 +334,10 @@
 		};
 	};
 };
-
+ /* @Mezrher I2C1 connects internally to the power management IC (PMIC), 
+    the on-module Micro Controller Assist (MCA), 
+	and the Atmel Cryptochip */
+	
 &i2c1 {
 	clock-frequency = <100000>;
 	pinctrl-names = "default", "gpio";
@@ -476,6 +487,9 @@
 	status = "okay";
 };
 
+/*  I2C3 : connected to SN65DSI83 MIPI-to-LVDS bridge and to LT8912 MIPI-to-HDMI bridge -> NOT USED HERE !  */
+
+/*
 &i2c3 {
 	clock-frequency = <100000>;
 	pinctrl-names = "default", "gpio";
@@ -485,6 +499,16 @@
 	sda-gpios = <&gpio5 19 GPIO_ACTIVE_HIGH>;
 	status = "okay";
 };
+*/
+
+//@Mezrher: Boot device(internal Boot) Serial NOR flash via FlexSPI interface Page 749. But not used here
+/*
+The Boot ROM attempts to boot from Serial NOR flash if the BOOT_MODE[3:1] fuses
+are programmed to 0b011 as shown in the Serial NOR eFUSE Configuration table, then
+the ROM will initialize FlexSPI interface as selected in the BOOT_MODE[0] settings of
+the FlexSPI eFUSE configuration. FlexSPI interface initialization is a two-step process.
+
+*/
 
 &flexspi {
 	pinctrl-names = "default";
@@ -531,19 +555,24 @@
 	status = "okay";
 };
 
+//MicrSD not used in Bonn Carrier Board 
+
+/*
 &usdhc2 {
+	
 	pinctrl-names = "default", "state_100mhz", "state_200mhz";
 	pinctrl-0 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
 	pinctrl-1 = <&pinctrl_usdhc2_100mhz>, <&pinctrl_usdhc2_gpio>;
 	pinctrl-2 = <&pinctrl_usdhc2_200mhz>, <&pinctrl_usdhc2_gpio>;
 	cd-gpios = <&gpio2 12 GPIO_ACTIVE_HIGH>;
-	/* Assert GPIO5_IO1 low for 3V3 (default) or high for 1.8V */
+	// Assert GPIO5_IO1 low for 3V3 (default) or high for 1.8V 
 	pinctrl-assert-gpios = <&gpio5 1 GPIO_ACTIVE_LOW>;
-	/* 1.8V currently unsupported */
+	//1.8V currently unsupported 
 	no-1-8-v;
 	bus-width = <4>;
 	status = "disabled";
 };
+*/
 
 &usdhc3 {
 	pinctrl-names = "default", "state_100mhz", "state_200mhz";
@@ -571,8 +600,26 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_usbotg1>;
 	vbus-supply = <&reg_3v3_usb_hub>;
-	fsl,reset-gpio = <&gpio5 10 GPIO_ACTIVE_LOW>;
+	//fsl,reset-gpio = <&gpio5 10 GPIO_ACTIVE_LOW>;
 	dr_mode = "peripheral"; /* Set "host" to use a USB mass storage */
 	disable-over-current;
 	status = "okay";
 };
+
+
+/*I2C Interface 
+
+1. I2C1 connects internally to the power management IC (PMIC), 
+   the on-module Micro Controller Assist (MCA), and the Atmel Cryptochip
+   
+2. I2C2 is connected to the on-board audio chip, routed to the MIPI camera so
+   it can connect to an image sensor and routed to the LVDS connector so it can connect
+   to a touch controller
+   
+3. I2C3 (which operates at 1.8 V) is connected to the on-board LT8912 MIPI-to-HDMI and 
+   SN65DSI83 MIPI-to-LVDS display bridges
+
+
+
+
+*/
