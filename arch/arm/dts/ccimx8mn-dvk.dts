@@ -108,16 +108,31 @@
 
 &iomuxc {
 	pinctrl-names = "default";
-    pinctrl-0 = <&pinctrl_hog>;
+//   pinctrl-0 = <&pinctrl_hog_1>;
+    pinctrl-0 = <&pinctrl_uart2_gpios>;
 //	pinctrl-0 = <&pinctrl_uart2_gpios>, <&pinctrl_ilock>, <&pinctrl_ttl_i>, <&pinctrl_ttl_o>, <&pinctrl_gpib>;
 
 	imx8mn-evk {
+		
+		pinctrl_uart2_gpios: uart2_gpiogrp {	// BUS 0
+		fsl,pins = <
+//			MX8MN_IOMUXC_UART1_TXD_GPIO5_IO23	0x140	// Mst D18		Pull-up	0-aktiv
+//			MX8MN_IOMUXC_UART3_RXD_GPIO5_IO26	0x100	// Slv AG26	Pull-dn	0-aktiv
+//			MX8MN_IOMUXC_UART3_TXD_GPIO5_IO27	0x100	// DIR AG27	Pull-dn	
+			MX8MN_IOMUXC_UART1_TXD_GPIO5_IO23	0x16	// Mst D18		Pull-up	0-aktiv
+			MX8MN_IOMUXC_UART3_RXD_GPIO5_IO26	0x16	// Slv AG26	Pull-dn	0-aktiv
+			MX8MN_IOMUXC_UART3_TXD_GPIO5_IO27	0x16	// DIR AG27	Pull-dn	
+		>;
+	    };
+		
+
+/*		
 		pinctrl_hog_1: hoggrp-1 {
 			fsl,pins = <
 				MX8MN_IOMUXC_GPIO1_IO08_GPIO1_IO8		0x16
 			>;
 		};
-
+*/
 		pinctrl_fec1: fec1grp {
 			fsl,pins = <
 				MX8MN_IOMUXC_ENET_MDC_ENET1_MDC		0x3
@@ -340,6 +355,50 @@
 				MX8MN_IOMUXC_GPIO1_IO02_WDOG1_WDOG_B		0xc6
 			>;
 		};
+		
+		pinctrl_uart1: uart1grp {
+		fsl,pins = <
+			MX8MN_IOMUXC_SAI2_RXC_UART1_DCE_RX	0x140
+			MX8MN_IOMUXC_SAI2_RXFS_UART1_DCE_TX	0x140
+		>;
+	    };
+		
+		pinctrl_uart2: uart2grp {		// BUS 0
+		fsl,pins = <
+			MX8MN_IOMUXC_UART2_RXD_UART2_DCE_RX		0x140		// C18	TP90
+			MX8MN_IOMUXC_UART2_TXD_UART2_DCE_TX		0x140		// C17	TP92
+			MX8MN_IOMUXC_SAI3_RXD_UART2_DCE_RTS_B	0x140	// F11	GPIO3V_6	R181
+			MX8MN_IOMUXC_SAI3_RXC_UART2_DCE_CTS_B	0x140	// F12	GPIO3V_5	R151
+//			MX8MN_IOMUXC_SD2_WP_GPIO2_IO20		0x16			// F3	TP91
+//			MX8MN_IOMUXC_SD2_WP_GPIO2_IO20		0x140			// F3	TP91
+		>;
+		};
+		
+		pinctrl_uart3: uart3grp {
+		fsl,pins = <
+			MX8MN_IOMUXC_ECSPI1_SCLK_UART3_DCE_RX		0x140
+			MX8MN_IOMUXC_ECSPI1_MOSI_UART3_DCE_TX		0x140
+			MX8MN_IOMUXC_ECSPI1_SS0_UART3_DCE_RTS_B		0x140
+			MX8MN_IOMUXC_ECSPI1_MISO_UART3_DCE_CTS_B	0x140
+		>;
+	    };
+		
+		pinctrl_uart4: uart4grp {	// Bus 2
+		fsl,pins = <
+			MX8MN_IOMUXC_UART4_RXD_UART4_DCE_RX		0x140	// U29	TP62
+			MX8MN_IOMUXC_UART4_TXD_UART4_DCE_TX		0x140	// T29	TP60
+			MX8MN_IOMUXC_ECSPI2_SS0_UART4_DCE_RTS_B		0x140	// E19	X02/51
+			MX8MN_IOMUXC_ECSPI2_MISO_UART4_DCE_CTS_B	0x140	// E22	X02/49
+		>;
+	    };
+		
+		
+		
+		
+		
+		
+		
+		
 	};
 };
  /* @Mezrher I2C1 connects internally to the power management IC (PMIC), 
@@ -637,7 +696,7 @@ the FlexSPI eFUSE configuration. FlexSPI interface initialization is a two-step 
 	assigned-clocks = <&clk IMX8MN_CLK_UART2>;
 	assigned-clock-parents = <&clk IMX8MN_SYS_PLL1_80M>;
 //	pinctrl-0 = <&pinctrl_uart2_rs485>, <&pinctrl_uart2_rs485_re>, <&pinctrl_uart2_gpios>;
-	pinctrl-0 = <&pinctrl_uart2_rs485>, <&pinctrl_uart2_rs485_re>;
+	pinctrl-0 = <&pinctrl_uart2>;
 	rts-gpios = <&gpio2 20 GPIO_ACTIVE_HIGH>;
 	status = "okay";
 };
@@ -647,7 +706,7 @@ the FlexSPI eFUSE configuration. FlexSPI interface initialization is a two-step 
 	pinctrl-names = "default";
 	assigned-clocks = <&clk IMX8MN_CLK_UART3>;
 	assigned-clock-parents = <&clk IMX8MN_SYS_PLL1_80M>;
-	pinctrl-0 = <&pinctrl_uart3_rs485>, <&pinctrl_uart3_rs485_re>;
+	pinctrl-0 = <&pinctrl_uart3>;
 	rts-gpios = <&gpio2 19 GPIO_ACTIVE_HIGH>;
 //	rts-gpios = <&gpio5 8 GPIO_ACTIVE_HIGH>;
 	status = "okay";
@@ -656,7 +715,7 @@ the FlexSPI eFUSE configuration. FlexSPI interface initialization is a two-step 
 
 &uart4 {	// Bus 2 GPIO	Test: echo "a" > /dev/ttymxc3
 	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_uart4_rs485>, <&pinctrl_uart4_rs485_re>;
+	pinctrl-0 = <&pinctrl_uart4>;
 	assigned-clocks = <&clk IMX8MN_CLK_UART4>;
 	assigned-clock-parents = <&clk IMX8MN_SYS_PLL1_80M>;
 	rts-gpios = <&gpio3 19 GPIO_ACTIVE_HIGH>;
