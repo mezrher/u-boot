@@ -108,7 +108,8 @@
 
 &iomuxc {
 	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_hog_1>;
+    pinctrl-0 = <&pinctrl_hog>;
+//	pinctrl-0 = <&pinctrl_uart2_gpios>, <&pinctrl_ilock>, <&pinctrl_ttl_i>, <&pinctrl_ttl_o>, <&pinctrl_gpib>;
 
 	imx8mn-evk {
 		pinctrl_hog_1: hoggrp-1 {
@@ -157,21 +158,24 @@
 			
 			>;
 		};
-		//pmic pinctrl 
+		 //pmic pinctrl used for the SOM  
+		 
 		pinctrl_i2c1: i2c1grp {
 			fsl,pins = <
 				MX8MN_IOMUXC_I2C1_SCL_I2C1_SCL			0x400001c3
 				MX8MN_IOMUXC_I2C1_SDA_I2C1_SDA			0x400001c3
 			>;
 		};
-
+/*
 		pinctrl_i2c2: i2c2grp {
 			fsl,pins = <
 				MX8MN_IOMUXC_I2C2_SCL_I2C2_SCL			0x400001c3
 				MX8MN_IOMUXC_I2C2_SDA_I2C2_SDA			0x400001c3
 			>;
 		};
-		
+
+*/		
+
 /*
 		pinctrl_i2c3: i2c3grp {
 			fsl,pins = <
@@ -187,12 +191,14 @@
 			>;
 		};
 
+/*
 		pinctrl_i2c2_gpio: i2c2grp-gpio {
 			fsl,pins = <
 				MX8MN_IOMUXC_I2C2_SCL_GPIO5_IO16        		0x1c3
 				MX8MN_IOMUXC_I2C2_SDA_GPIO5_IO17        	0x1c3
 			>;
 		};
+*/
 
 /*
 		pinctrl_i2c3_gpio: i2c3grp-gpio {
@@ -205,12 +211,14 @@
 */
 
 //@Mezrher Check this Pin !!! double use !!! in GPIB Group
+
+/*
 		pinctrl_pmic: pmicirq {
 			fsl,pins = <
 				MX8MN_IOMUXC_GPIO1_IO03_GPIO1_IO3		0x41
 			>;
 		};
-
+*/
 
 		pinctrl_uart1: uart1grp {
 			fsl,pins = <
@@ -476,7 +484,9 @@
 		reg = <0x63>;
 	};
 };
-
+ /*I2C2 (connected to OnBoard Audio Chip, routed the MIPI CAMERA) not used here */
+ 
+ /*
 &i2c2 {
 	clock-frequency = <400000>;
 	pinctrl-names = "default", "gpio";
@@ -486,7 +496,7 @@
 	sda-gpios = <&gpio5 17 GPIO_ACTIVE_HIGH>;
 	status = "okay";
 };
-
+*/
 /*  I2C3 : connected to SN65DSI83 MIPI-to-LVDS bridge and to LT8912 MIPI-to-HDMI bridge -> NOT USED HERE !  */
 
 /*
@@ -543,7 +553,7 @@ the FlexSPI eFUSE configuration. FlexSPI interface initialization is a two-step 
 			 reg = <0>;
 			 interrupt-parent = <&gpio5>;  					
 			 interrupts = <2 IRQ_TYPE_LEVEL_LOW>; 		
-		         micrel,led-mode = <1>;     //@Mezrher changed micrel-mode =<0>;
+		     micrel,led-mode = <1>;     //@Mezrher changed micrel-mode =<0>;
 			 
 		};
 	};
@@ -619,7 +629,36 @@ the FlexSPI eFUSE configuration. FlexSPI interface initialization is a two-step 
 3. I2C3 (which operates at 1.8 V) is connected to the on-board LT8912 MIPI-to-HDMI and 
    SN65DSI83 MIPI-to-LVDS display bridges
 
-
-
-
 */
+
+// Bus0
+&uart2 {
+	pinctrl-names = "default";
+	assigned-clocks = <&clk IMX8MN_CLK_UART2>;
+	assigned-clock-parents = <&clk IMX8MN_SYS_PLL1_80M>;
+//	pinctrl-0 = <&pinctrl_uart2_rs485>, <&pinctrl_uart2_rs485_re>, <&pinctrl_uart2_gpios>;
+	pinctrl-0 = <&pinctrl_uart2_rs485>, <&pinctrl_uart2_rs485_re>;
+	rts-gpios = <&gpio2 20 GPIO_ACTIVE_HIGH>;
+	status = "okay";
+};
+
+// Bus1
+&uart3 {
+	pinctrl-names = "default";
+	assigned-clocks = <&clk IMX8MN_CLK_UART3>;
+	assigned-clock-parents = <&clk IMX8MN_SYS_PLL1_80M>;
+	pinctrl-0 = <&pinctrl_uart3_rs485>, <&pinctrl_uart3_rs485_re>;
+	rts-gpios = <&gpio2 19 GPIO_ACTIVE_HIGH>;
+//	rts-gpios = <&gpio5 8 GPIO_ACTIVE_HIGH>;
+	status = "okay";
+};
+
+
+&uart4 {	// Bus 2 GPIO	Test: echo "a" > /dev/ttymxc3
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart4_rs485>, <&pinctrl_uart4_rs485_re>;
+	assigned-clocks = <&clk IMX8MN_CLK_UART4>;
+	assigned-clock-parents = <&clk IMX8MN_SYS_PLL1_80M>;
+	rts-gpios = <&gpio3 19 GPIO_ACTIVE_HIGH>;
+	status = "okay";
+};
