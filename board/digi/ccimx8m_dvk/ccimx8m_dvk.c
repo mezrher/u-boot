@@ -6,11 +6,11 @@
  */
 
 #include <common.h>
+#include <led.h>
 #include <malloc.h>
 #include <errno.h>
 #include <asm/io.h>
 #include <miiphy.h>
-#include<micrel.h>
 #include <netdev.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm-generic/gpio.h>
@@ -69,23 +69,13 @@ static iomux_v3_cfg_t const wdog_pads[] = {
 #endif
 };
 
-#if defined(CONFIG_CONSOLE_ENABLE_GPIO) && !defined(CONFIG_SPL_BUILD)
-#define GPI_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_FSEL2 | PAD_CTL_PE)
-
-static iomux_v3_cfg_t const ext_gpios_pads[] = {
-#ifdef CONFIG_IMX8MM
-	IMX8MM_PAD_GPIO1_IO10_GPIO1_IO10 | MUX_PAD_CTRL(GPI_PAD_CTRL),
-	IMX8MM_PAD_GPIO1_IO11_GPIO1_IO11 | MUX_PAD_CTRL(GPI_PAD_CTRL),
-	IMX8MM_PAD_GPIO1_IO13_GPIO1_IO13 | MUX_PAD_CTRL(GPI_PAD_CTRL),
-	IMX8MM_PAD_GPIO1_IO14_GPIO1_IO14 | MUX_PAD_CTRL(GPI_PAD_CTRL),
-#elif defined CONFIG_IMX8MN
-	IMX8MN_PAD_GPIO1_IO10__GPIO1_IO10 | MUX_PAD_CTRL(GPI_PAD_CTRL),
-	IMX8MN_PAD_GPIO1_IO11__GPIO1_IO11 | MUX_PAD_CTRL(GPI_PAD_CTRL),
-	IMX8MN_PAD_GPIO1_IO13__GPIO1_IO13 | MUX_PAD_CTRL(GPI_PAD_CTRL),
-	IMX8MN_PAD_GPIO1_IO14__GPIO1_IO14 | MUX_PAD_CTRL(GPI_PAD_CTRL),
+int board_early_init_r(void)
+{
+#if defined(CONFIG_HAS_TRUSTFENCE) && defined(CONFIG_CAAM_ENV_ENCRYPT)
+	setup_caam();
 #endif
-};
-#endif /* CONFIG_CONSOLE_ENABLE_GPIO && !CONFIG_SPL_BUILD */
+	return 0;
+}
 
 int board_early_init_f(void)
 {
@@ -105,14 +95,6 @@ int board_early_init_f(void)
 
 	return 0;
 }
-
-#ifdef CONFIG_BOARD_POSTCLK_INIT
-int board_postclk_init(void)
-{
-	/* TODO */
-	return 0;
-}
-#endif
 
 #ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, struct bd_info *bd)
@@ -137,32 +119,15 @@ int board_late_init(void)
 	/* Set default dynamic variables */
 	platform_default_environment();
 
+#ifdef CONFIG_HAS_TRUSTFENCE
+	restore_dek_blob();
+#endif
+
 	return 0;
 }
 
 #ifdef CONFIG_FEC_MXC
-static void enet_device_phy_reset(void)
-{
-	struct gpio_desc desc;
-	struct udevice *dev = NULL;
-	int ret;
 
-	ret = dm_gpio_lookup_name("gpio5_3", &desc);
-	if (ret)
-		return;
-
-	ret = dm_gpio_request(&desc, "fec1_reset");
-	if (ret)
-		return;
-
-	dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT);
-	dm_gpio_set_value(&desc, 0);
-	udelay(50);
-	dm_gpio_set_value(&desc, 1);
-	dm_gpio_free(dev, &desc);
-
-	udelay(10);
-}
 
 int board_phy_config(struct phy_device *phydev)
 {
@@ -170,17 +135,8 @@ int board_phy_config(struct phy_device *phydev)
 		phydev->drv->config(phydev);
 
 #ifndef CONFIG_DM_ETH
-	/* enable rgmii rxc skew and phy mode select to RGMII copper */
-	//phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x1f);
-	//phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x8);
-
-	/* Introduce RGMII RX clock delay */
-	//phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x00);
-	//phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x82ee);
-
-	/* Introduce RGMII TX clock delay */
-	//phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x05);
-	//phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x100);
+	/* To DO */
+	/*introduce delay if needed */
 #endif
 
 	return 0;
@@ -190,30 +146,29 @@ static int setup_fec(void)
 {
 	struct iomuxc_gpr_base_regs *const iomuxc_gpr_regs
 		= (struct iomuxc_gpr_base_regs *) IOMUXC_GPR_BASE_ADDR;
-//	struct gpio_desc enet_pwr;
-//	int ret;
+	// struct gpio_desc enet_pwr;
+	// int ret;
 
 	/* Power up the PHY */
-//	ret = dm_gpio_lookup_name("gpio5_4", &enet_pwr);
-//	if (ret)
-//		return -1;
+	// ret = dm_gpio_lookup_name("gpio5_4", &enet_pwr);
+	// if (ret)
+	//	return -1;
 
-//	ret = dm_gpio_request(&enet_pwr, "fec1_pwr");
-//	if (ret)
-//		return -1;
+	// ret = dm_gpio_request(&enet_pwr, "fec1_pwr");
+	// if (ret)
+	// 	return -1;
 
-//	dm_gpio_set_dir_flags(&enet_pwr, GPIOD_IS_OUT);
-//	dm_gpio_set_value(&enet_pwr, 1);
-	
-	//@Mezrher
-	mdelay(1);	/* @ stable PHY power up time */
+	// dm_gpio_set_dir_flags(&enet_pwr, GPIOD_IS_OUT);
+	// dm_gpio_set_value(&enet_pwr, 1);
+	mdelay(1);	/* PHY power up time */
 
 	/* Reset the PHY */
-//	enet_device_phy_reset();
+	// PHY is suppled with external power
+	// enet_device_phy_reset();
 
 	/* Use 125M anatop REF_CLK1 for ENET1, not from external */
 	clrsetbits_le32(&iomuxc_gpr_regs->gpr[1],
-			IOMUXC_GPR_GPR1_GPR_ENET1_TX_CLK_SEL_MASK, 0);
+			IOMUXC_GPR_GPR1_GPR_ENET1_TX_CLK_SEL, 0);
 	return set_clk_enet(ENET_125MHZ);
 }
 #endif
@@ -237,49 +192,34 @@ int board_ehci_usb_phy_mode(struct udevice *dev)
 	return USB_INIT_DEVICE;
 }
 
+/*
 static int board_power_led_init(void)
 {
-	/* MCA_IO13 is connected to POWER_LED */
-	const char *name = "MCA-GPIO_13";
-	struct gpio_desc desc;
+	struct udevice *dev;
 	int ret;
 
-	ret = dm_gpio_lookup_name(name, &desc);
-	if (ret)
-		goto error;
+	ret = led_get_by_label("power", &dev);
+	if (ret || !dev) {
+		printf("%s: failed to get power LED device\n", __func__);
+		return -ENODEV;
+	}
 
-	ret = dm_gpio_request(&desc, "Power LED");
-	if (ret)
-		goto error;
-
-	ret = dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT);
-	if (ret)
-		goto errfree;
-
-	ret = dm_gpio_set_value(&desc, 1);
-	if (ret)
-		goto errfree;
-
-	return 0;
-errfree:
-	dm_gpio_free(NULL, &desc);
-error:
-	return ret;
+	return led_set_state(dev, LEDST_ON);
 }
+
+*/
 
 int board_init(void)
 {
 #if defined(CONFIG_CONSOLE_ENABLE_GPIO) && !defined(CONFIG_SPL_BUILD)
-	imx_iomux_v3_setup_multiple_pads(ext_gpios_pads,
-					 ARRAY_SIZE(ext_gpios_pads));
 	if (console_enable_gpio(CONFIG_CONSOLE_ENABLE_GPIO_NAME))
 		gd->flags &= ~(GD_FLG_DISABLE_CONSOLE | GD_FLG_SILENT);
 #endif /* CONFIG_CONSOLE_ENABLE_GPIO && !CONFIG_SPL_BUILD */
 
 	/* SOM init */
 	ccimx8_init();
-	//@Mezrher
-	//board_power_led_init();
+
+	// board_power_led_init();
 
 #ifdef CONFIG_MXC_SPI
 	setup_spi();
@@ -292,11 +232,11 @@ int board_init(void)
 	return 0;
 }
 
-int mmc_map_to_kernel_blk(int devno)
-{
-	return devno;
-}
-
+#if defined(CONFIG_DISPLAY_BOARDINFO_LATE)
+/*
+ * Call this during late initialization, after relocation and board setup,
+ * as some initialization must be completed before printing the information.
+ */
 int checkboard(void)
 {
 	board_version = get_carrierboard_version();
@@ -308,6 +248,7 @@ int checkboard(void)
 
 	return 0;
 }
+#endif
 
 #ifdef CONFIG_FSL_FASTBOOT
 #ifdef CONFIG_ANDROID_RECOVERY
