@@ -54,7 +54,7 @@
 /* ENET Config */
 /* ENET1 */
 #if defined(CONFIG_FEC_MXC)
-#define CONFIG_MII
+//#define CONFIG_MII
 #define CONFIG_ETHPRIME                 "FEC"
 #define PHY_ANEG_TIMEOUT 20000
 

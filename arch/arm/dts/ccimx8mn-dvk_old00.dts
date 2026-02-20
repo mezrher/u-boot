@@ -31,7 +31,7 @@
 	 */
 	aliases {
 		mmc0 = &usdhc3;		/* eMMC */
-	  	mmc1 = &usdhc2;		/* microSD */
+		mmc1 = &usdhc2;		/* microSD */
 		mmc2 = &usdhc1;
 	};
 
@@ -47,19 +47,17 @@
 
 		reg_3v3_usb_hub: regulator-usb-hub {
 			compatible = "regulator-fixed";
-			regulator-name = "3v3_usb_hub";
+			regulator-name = "3v3_usb_hub_Mez";
 			regulator-min-microvolt = <3300000>;
 			regulator-max-microvolt = <3300000>;
 			/* No GPIO enable, always on */
     			regulator-always-on;
     			regulator-boot-on;
 		};
-
-	
-	
+		
 		reg_3v3_eth0: regulator-ethphy {
 			compatible = "regulator-fixed";
-			regulator-name = "3v3_eth0";
+			regulator-name = "3v3_eth0_Mez";
 			regulator-min-microvolt = <3300000>;
 			regulator-max-microvolt = <3300000>;
 			/* No GPIO enable, always on */
@@ -110,10 +108,9 @@
 
 &iomuxc {
 	pinctrl-names = "default";
-        pinctrl-0 = <&pinctrl_hog_1>;
+	pinctrl-0 = <&pinctrl_hog_1>;
 
 	imx8mn-evk {
-				
 		pinctrl_hog_1: hoggrp-1 {
 			fsl,pins = <
 				MX8MN_IOMUXC_GPIO1_IO08_GPIO1_IO8		0x16
@@ -145,11 +142,10 @@
 			>;
 		};
 		
-		/*@Mezrher Serial NOR Flash Boot via FlexSPI-> not used here, but activated whenever needed   */
+
 			
 		pinctrl_flexspi0: flexspi0grp {
 			fsl,pins = <
-			
 				MX8MN_IOMUXC_NAND_ALE_QSPI_A_SCLK 0x1c4
 				MX8MN_IOMUXC_NAND_CE0_B_QSPI_A_SS0_B 0x84
 
@@ -157,56 +153,44 @@
 				MX8MN_IOMUXC_NAND_DATA01_QSPI_A_DATA1 0x84
 				MX8MN_IOMUXC_NAND_DATA02_QSPI_A_DATA2 0x84
 				MX8MN_IOMUXC_NAND_DATA03_QSPI_A_DATA3 0x84
-			
 			>;
 		};
-		 //pmic pinctrl used for the SOM to communicate with PMIC and set the regulator voltages   
-		 
+
 		pinctrl_i2c1: i2c1grp {
 			fsl,pins = <
 				MX8MN_IOMUXC_I2C1_SCL_I2C1_SCL			0x400001c3
 				MX8MN_IOMUXC_I2C1_SDA_I2C1_SDA			0x400001c3
 			>;
 		};
-/*
-//		pinctrl_i2c2: i2c2grp {
-//			fsl,pins = <
-//				MX8MN_IOMUXC_I2C2_SCL_I2C2_SCL			0x400001c3
-//				MX8MN_IOMUXC_I2C2_SDA_I2C2_SDA			0x400001c3
-//			>;
-//		};
 
-*/		
+		pinctrl_i2c2: i2c2grp {
+			fsl,pins = <
+				MX8MN_IOMUXC_I2C2_SCL_I2C2_SCL			0x400001c3
+				MX8MN_IOMUXC_I2C2_SDA_I2C2_SDA			0x400001c3
+			>;
+		};
 
-/*
-//		pinctrl_i2c3: i2c3grp {
-//			fsl,pins = <
-//				MX8MN_IOMUXC_I2C3_SCL_I2C3_SCL			0x400001c3
-//				MX8MN_IOMUXC_I2C3_SDA_I2C3_SDA			0x400001c3
-//			>;
-//		};
-*/
-
+		pinctrl_i2c3: i2c3grp {
+			fsl,pins = <
+				MX8MN_IOMUXC_I2C3_SCL_I2C3_SCL			0x400001c3
+				MX8MN_IOMUXC_I2C3_SDA_I2C3_SDA			0x400001c3
+			>;
+		};
 
 		pinctrl_i2c1_gpio: i2c1grp-gpio {
 			fsl,pins = <
-				MX8MN_IOMUXC_I2C1_SCL_GPIO5_IO14        	0x1c3
+				MX8MN_IOMUXC_I2C1_SCL_GPIO5_IO14        		0x1c3
 				MX8MN_IOMUXC_I2C1_SDA_GPIO5_IO15        	0x1c3
 			>;
 		};
 
+		pinctrl_i2c2_gpio: i2c2grp-gpio {
+			fsl,pins = <
+				MX8MN_IOMUXC_I2C2_SCL_GPIO5_IO16        		0x1c3
+				MX8MN_IOMUXC_I2C2_SDA_GPIO5_IO17        	0x1c3
+			>;
+		};
 
-
-/*
-//		pinctrl_i2c2_gpio: i2c2grp-gpio {
-//			fsl,pins = <
-//				MX8MN_IOMUXC_I2C2_SCL_GPIO5_IO16        		0x1c3
-//				MX8MN_IOMUXC_I2C2_SDA_GPIO5_IO17        	0x1c3
-//			>;
-//		};
-*/
-
-/*
 		pinctrl_i2c3_gpio: i2c3grp-gpio {
 			fsl,pins = <
 				MX8MN_IOMUXC_I2C3_SCL_GPIO5_IO18        		0x1c3
@@ -214,16 +198,18 @@
 			>;
 		};
 
-*/
-
-//@Mezrher This pin represent the IRQ for the PMIC
-
-
 		pinctrl_pmic: pmicirq {
 			fsl,pins = <
 				MX8MN_IOMUXC_GPIO1_IO03_GPIO1_IO3		0x41
 			>;
 		};
+
+
+
+
+
+
+
 
 
 		pinctrl_uart1: uart1grp {
@@ -242,28 +228,23 @@
 
 		pinctrl_usdhc2_gpio: usdhc2grpgpio {
 			fsl,pins = <
-				//Card detect 
+				/* Card detect */
 				MX8MN_IOMUXC_SD2_CD_B_GPIO2_IO12	0x1d0
-				//MUX_VSELECT 
-				MX8MN_IOMUXC_SAI3_TXD_GPIO5_IO1		0x190
+				/* MUX_VSELECT */
+				MX8MN_IOMUXC_SAI3_TXD_GPIO5_IO1	0x190
 			>;
-		};    
-
-
+		};
 
 		pinctrl_usdhc2: usdhc2grp {
 			fsl,pins = <
-				MX8MN_IOMUXC_SD2_CLK_USDHC2_CLK		0x190
-				MX8MN_IOMUXC_SD2_CMD_USDHC2_CMD		0x1d0
+				MX8MN_IOMUXC_SD2_CLK_USDHC2_CLK	0x190
+				MX8MN_IOMUXC_SD2_CMD_USDHC2_CMD	0x1d0
 				MX8MN_IOMUXC_SD2_DATA0_USDHC2_DATA0	0x1d0
 				MX8MN_IOMUXC_SD2_DATA1_USDHC2_DATA1	0x1d0
 				MX8MN_IOMUXC_SD2_DATA2_USDHC2_DATA2	0x1d0
 				MX8MN_IOMUXC_SD2_DATA3_USDHC2_DATA3	0x1d0
 			>;
 		};
-
-
-
 
 		pinctrl_usdhc2_100mhz: usdhc2grp100mhz {
 			fsl,pins = <
@@ -276,8 +257,6 @@
 			>;
 		};
 
-
-
 		pinctrl_usdhc2_200mhz: usdhc2grp200mhz {
 			fsl,pins = <
 				MX8MN_IOMUXC_SD2_CLK_USDHC2_CLK	0x196
@@ -288,7 +267,6 @@
 				MX8MN_IOMUXC_SD2_DATA3_USDHC2_DATA3	0x1d6
 			>;
 		};
-
 
 		pinctrl_usdhc3: usdhc3grp {
 			fsl,pins = <
@@ -346,58 +324,9 @@
 				MX8MN_IOMUXC_GPIO1_IO02_WDOG1_WDOG_B		0xc6
 			>;
 		};
-		
-		
-/*Duplicate Pinctrl*/		
-//		pinctrl_uart1: uart1grp {
-//		fsl,pins = <
-//			MX8MN_IOMUXC_SAI2_RXC_UART1_DCE_RX	0x140
-//			MX8MN_IOMUXC_SAI2_RXFS_UART1_DCE_TX	0x140
-//		>;
-//	    };
-		
-		pinctrl_uart2: uart2grp {		// BUS 0
-		fsl,pins = <
-			MX8MN_IOMUXC_UART2_RXD_UART2_DCE_RX		0x140		// C18	TP90
-			MX8MN_IOMUXC_UART2_TXD_UART2_DCE_TX		0x140		// C17	TP92
-			MX8MN_IOMUXC_SAI3_RXD_UART2_DCE_RTS_B	0x140	// F11	GPIO3V_6	R181
-			MX8MN_IOMUXC_SAI3_RXC_UART2_DCE_CTS_B	0x140	// F12	GPIO3V_5	R151
-//			MX8MN_IOMUXC_SD2_WP_GPIO2_IO20		0x16			// F3	TP91
-//			MX8MN_IOMUXC_SD2_WP_GPIO2_IO20		0x140			// F3	TP91
-		>;
-		};
-		
-		pinctrl_uart3: uart3grp {
-		fsl,pins = <
-			MX8MN_IOMUXC_ECSPI1_SCLK_UART3_DCE_RX		0x140
-			MX8MN_IOMUXC_ECSPI1_MOSI_UART3_DCE_TX		0x140
-			MX8MN_IOMUXC_ECSPI1_SS0_UART3_DCE_RTS_B		0x140
-			MX8MN_IOMUXC_ECSPI1_MISO_UART3_DCE_CTS_B	0x140
-		>;
-	    };
-		
-		pinctrl_uart4: uart4grp {	// Bus 2
-		fsl,pins = <
-			MX8MN_IOMUXC_UART4_RXD_UART4_DCE_RX		0x140	// U29	TP62
-			MX8MN_IOMUXC_UART4_TXD_UART4_DCE_TX		0x140	// T29	TP60
-			MX8MN_IOMUXC_ECSPI2_SS0_UART4_DCE_RTS_B		0x140	// E19	X02/51
-			MX8MN_IOMUXC_ECSPI2_MISO_UART4_DCE_CTS_B	0x140	// E22	X02/49
-		>;
-	    };
-		
-		
-		
-		
-		
-		
-		
-		
 	};
 };
- /* @Mezrher I2C1 connects internally to the power management IC (PMIC), 
-    the on-module Micro Controller Assist (MCA), 
-	and the Atmel Cryptochip */
-	
+
 &i2c1 {
 	clock-frequency = <100000>;
 	pinctrl-names = "default", "gpio";
@@ -536,9 +465,7 @@
 		reg = <0x63>;
 	};
 };
- /*I2C2 connected to OnBoard Audio Chip, routed the MIPI CAMERA) not used here */
- 
- /*
+
 &i2c2 {
 	clock-frequency = <400000>;
 	pinctrl-names = "default", "gpio";
@@ -548,10 +475,7 @@
 	sda-gpios = <&gpio5 17 GPIO_ACTIVE_HIGH>;
 	status = "okay";
 };
-*/
-/*  I2C3 : connected to SN65DSI83 MIPI-to-LVDS bridge and to LT8912 MIPI-to-HDMI bridge -> NOT USED HERE !  */
 
-/*
 &i2c3 {
 	clock-frequency = <100000>;
 	pinctrl-names = "default", "gpio";
@@ -561,16 +485,6 @@
 	sda-gpios = <&gpio5 19 GPIO_ACTIVE_HIGH>;
 	status = "okay";
 };
-*/
-
-//@Mezrher: Boot device(internal Boot) Serial NOR flash via FlexSPI interface Page 749. But not used here
-/*
-The Boot ROM attempts to boot from Serial NOR flash if the BOOT_MODE[3:1] fuses
-are programmed to 0b011 as shown in the Serial NOR eFUSE Configuration table, then
-the ROM will initialize FlexSPI interface as selected in the BOOT_MODE[0] settings of
-the FlexSPI eFUSE configuration. FlexSPI interface initialization is a two-step process.
-
-*/
 
 &flexspi {
 	pinctrl-names = "default";
@@ -601,11 +515,13 @@ the FlexSPI eFUSE configuration. FlexSPI interface initialization is a two-step 
 		#size-cells = <0>;
 
 		ethphy0: ethernet-phy@0 {
-			 compatible = "ethernet-phy-ieee802.3-c22";
+			 compatible =  "ethernet-phy-ieee802.3-c22", "ethernet-phy-id0022.1642";   //@Mezrher seee dhcom dts
 			 reg = <0>;
 			 interrupt-parent = <&gpio5>;  					
 			 interrupts = <2 IRQ_TYPE_LEVEL_LOW>; 		
-		     micrel,led-mode = <1>;     //@Mezrher changed micrel-mode =<0>;
+		         //micrel,led-mode = <1>;     //@Mezrher individual mode link_activity Led changed micrel-mode =<0>;
+		         
+		        
 			 
 		};
 	};
@@ -617,24 +533,19 @@ the FlexSPI eFUSE configuration. FlexSPI interface initialization is a two-step 
 	status = "okay";
 };
 
-//MicrSD not used in Bonn Carrier Board 
-
-
 &usdhc2 {
-	
 	pinctrl-names = "default", "state_100mhz", "state_200mhz";
 	pinctrl-0 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
 	pinctrl-1 = <&pinctrl_usdhc2_100mhz>, <&pinctrl_usdhc2_gpio>;
 	pinctrl-2 = <&pinctrl_usdhc2_200mhz>, <&pinctrl_usdhc2_gpio>;
 	cd-gpios = <&gpio2 12 GPIO_ACTIVE_HIGH>;
-	// Assert GPIO5_IO1 low for 3V3 (default) or high for 1.8V 
+	/* Assert GPIO5_IO1 low for 3V3 (default) or high for 1.8V */
 	pinctrl-assert-gpios = <&gpio5 1 GPIO_ACTIVE_LOW>;
-	//1.8V currently unsupported 
+	/* 1.8V currently unsupported */
 	no-1-8-v;
 	bus-width = <4>;
 	status = "disabled";
 };
-
 
 &usdhc3 {
 	pinctrl-names = "default", "state_100mhz", "state_200mhz";
@@ -657,61 +568,13 @@ the FlexSPI eFUSE configuration. FlexSPI interface initialization is a two-step 
 	arm-supply = <&buck2_reg>;
 };
 
-/* USB_OTG1 connected to usb hub-> This should be defined, used as USB recovery in Boot Mode  */
+/* USB_OTG1 connected to usb hub */
 &usbotg1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_usbotg1>;
 	vbus-supply = <&reg_3v3_usb_hub>;
-	//fsl,reset-gpio = <&gpio5 10 GPIO_ACTIVE_LOW>;
+	fsl,reset-gpio = <&gpio5 10 GPIO_ACTIVE_LOW>;
 	dr_mode = "peripheral"; /* Set "host" to use a USB mass storage */
 	disable-over-current;
 	status = "okay";
 };
-
-
-/*I2C Interface 
-
-1. I2C1 connects internally to the power management IC (PMIC), 
-   the on-module Micro Controller Assist (MCA), and the Atmel Cryptochip
-   
-2. I2C2 is connected to the on-board audio chip, routed to the MIPI camera so
-   it can connect to an image sensor and routed to the LVDS connector so it can connect
-   to a touch controller
-   
-3. I2C3 (which operates at 1.8 V) is connected to the on-board LT8912 MIPI-to-HDMI and 
-   SN65DSI83 MIPI-to-LVDS display bridges
-
-*/
-
-// Bus0
-&uart2 {
-	pinctrl-names = "default";
-	assigned-clocks = <&clk IMX8MN_CLK_UART2>;
-	assigned-clock-parents = <&clk IMX8MN_SYS_PLL1_80M>;
-//	pinctrl-0 = <&pinctrl_uart2_rs485>, <&pinctrl_uart2_rs485_re>, <&pinctrl_uart2_gpios>;
-	pinctrl-0 = <&pinctrl_uart2>;
-	rts-gpios = <&gpio2 20 GPIO_ACTIVE_HIGH>;
-	status = "okay";
-};
-
-// Bus1
-&uart3 {
-	pinctrl-names = "default";
-	assigned-clocks = <&clk IMX8MN_CLK_UART3>;
-	assigned-clock-parents = <&clk IMX8MN_SYS_PLL1_80M>;
-	pinctrl-0 = <&pinctrl_uart3>;
-	rts-gpios = <&gpio2 19 GPIO_ACTIVE_HIGH>;
-//	rts-gpios = <&gpio5 8 GPIO_ACTIVE_HIGH>;
-	status = "okay";
-};
-
-
-&uart4 {	// Bus 2 GPIO	Test: echo "a" > /dev/ttymxc3
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_uart4>;
-	assigned-clocks = <&clk IMX8MN_CLK_UART4>;
-	assigned-clock-parents = <&clk IMX8MN_SYS_PLL1_80M>;
-	rts-gpios = <&gpio3 19 GPIO_ACTIVE_HIGH>;
-	status = "okay";
-};
-

@@ -31,18 +31,18 @@ static int ar8031_config(struct phy_device *phydev)
 {
 	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID ||
 	    phydev->interface == PHY_INTERFACE_MODE_RGMII_ID) {
-		phy_write(phydev, MDIO_DEVAD_NONE, AR803x_PHY_DEBUG_ADDR_REG,
-			  AR803x_DEBUG_REG_5);
-		phy_write(phydev, MDIO_DEVAD_NONE, AR803x_PHY_DEBUG_DATA_REG,
-			  AR803x_RGMII_TX_CLK_DLY);
+		phy_write(phydev, MDIO_DEVAD_NONE, AR803x_PHY_DEBUG_ADDR_REG, AR803x_DEBUG_REG_5);
+			  
+		phy_write(phydev, MDIO_DEVAD_NONE, AR803x_PHY_DEBUG_DATA_REG, AR803x_RGMII_TX_CLK_DLY);
+			  
 	}
 
 	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID ||
 	    phydev->interface == PHY_INTERFACE_MODE_RGMII_ID) {
-		phy_write(phydev, MDIO_DEVAD_NONE, AR803x_PHY_DEBUG_ADDR_REG,
-			  AR803x_DEBUG_REG_0);
-		phy_write(phydev, MDIO_DEVAD_NONE, AR803x_PHY_DEBUG_DATA_REG,
-			  AR803x_RGMII_RX_CLK_DLY);
+		phy_write(phydev, MDIO_DEVAD_NONE, AR803x_PHY_DEBUG_ADDR_REG, AR803x_DEBUG_REG_0);
+			  
+		phy_write(phydev, MDIO_DEVAD_NONE, AR803x_PHY_DEBUG_DATA_REG, AR803x_RGMII_RX_CLK_DLY);
+			  
 	}
 
 	phydev->supported = phydev->drv->features;

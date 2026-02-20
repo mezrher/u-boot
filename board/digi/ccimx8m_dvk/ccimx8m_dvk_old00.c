@@ -144,9 +144,8 @@ int board_late_init(void)
 }
 
 #ifdef CONFIG_FEC_MXC
-
-//static void enet_device_phy_reset(void)
-// {
+static void enet_device_phy_reset(void)
+{
 	/*  
 		Lookup for the GPIO5_IO3 in the device tree which is 
 		the reset pin of the fec and assert it for 20 Microsecond 
@@ -177,7 +176,7 @@ int board_late_init(void)
 	*/
 
 	
-//}
+}
 
 /*MEZRHER*/
 int board_phy_config(struct phy_device *phydev)
@@ -337,10 +336,9 @@ int board_ehci_usb_phy_mode(struct udevice *dev)
 	return USB_INIT_DEVICE;
 }
 
-/*
 static int board_power_led_init(void)
 {
-	// MCA_IO13 is connected to POWER_LED 
+	/* MCA_IO13 is connected to POWER_LED */
 	const char *name = "MCA-GPIO_13";
 	struct gpio_desc desc;
 	int ret;
@@ -368,31 +366,26 @@ error:
 	return ret;
 }
 
-*/
-
 int board_init(void)
 {
-
-//Connector J46 not populated URC_MK2
-
-
-//#if defined(CONFIG_CONSOLE_ENABLE_GPIO) && !defined(CONFIG_SPL_BUILD)
-//	const char *ext_gpios[] = {
-//		"GPIO1_10",	/* J46.3 */
-//		"GPIO1_11",	/* J46.5 */
-//		"GPIO1_13",	/* J46.7 */
-//		"GPIO1_14",	/* J46.9 */
-//	};
-//	const char *ext_gpio_name = ext_gpios[CONFIG_CONSOLE_ENABLE_GPIO_NR];
-//	imx_iomux_v3_setup_multiple_pads(ext_gpios_pads,
-//					 ARRAY_SIZE(ext_gpios_pads));
-//	if (console_enable_gpio(ext_gpio_name))
-//		gd->flags &= ~(GD_FLG_DISABLE_CONSOLE | GD_FLG_SILENT);
-//#endif /* CONFIG_CONSOLE_ENABLE_GPIO && !CONFIG_SPL_BUILD */
+#if defined(CONFIG_CONSOLE_ENABLE_GPIO) && !defined(CONFIG_SPL_BUILD)
+	const char *ext_gpios[] = {
+		"GPIO1_10",	/* J46.3 */
+		"GPIO1_11",	/* J46.5 */
+		"GPIO1_13",	/* J46.7 */
+		"GPIO1_14",	/* J46.9 */
+	};
+	const char *ext_gpio_name = ext_gpios[CONFIG_CONSOLE_ENABLE_GPIO_NR];
+	imx_iomux_v3_setup_multiple_pads(ext_gpios_pads,
+					 ARRAY_SIZE(ext_gpios_pads));
+	if (console_enable_gpio(ext_gpio_name))
+		gd->flags &= ~(GD_FLG_DISABLE_CONSOLE | GD_FLG_SILENT);
+#endif /* CONFIG_CONSOLE_ENABLE_GPIO && !CONFIG_SPL_BUILD */
 
 	/* SOM init */
 	ccimx8_init();
 	
+	/*@Mezrher*/
 	//board_power_led_init();
 
 #ifdef CONFIG_MXC_SPI
